@@ -1,0 +1,17 @@
+{
+  "name": "zlfetch",
+  "version": "1.0.0",
+  "description": "Fetch helper that returns a JSON string for both responses and errors",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "babel index.js -o dist/index.js --presets=es2015 --watch",
+    "babel": "babel index.js -o dist/index.js --presets=es2015",
+    "prepublish": "npm run babel"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "^6.24.0",
+    "babel-preset-es2015": "^6.24.0"
+  }
+}
