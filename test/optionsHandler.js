@@ -1,21 +1,5 @@
-const t = require('tape')
-const tapePromise = require('tape-promise').default
-const test = tapePromise(t)
-const zlFetch = require('./dist/index')
-
-// Makes sure async works before stubbing stuff
-test('ensure async works', async function (t) {
-  await delay(100)
-  t.true(true)
-})
-
-function delay (time) {
-  return new Promise(function (resolve, reject) {
-    setTimeout(function () {
-      resolve()
-    }, time)
-  })
-}
+const test = require('tape')
+const zlFetch = require('../dist/index')
 
 test('optionsHandler', (tape) => {
   // Test 1
@@ -68,45 +52,6 @@ test('optionsHandler', (tape) => {
     mode: 'no-cors'
   })
   tape.deepEqual(test5, expected5, 'retain all other options')
-
-  tape.end()
-})
-
-test('responseHandler', async (tape) => {
-  tape.plan(2)
-
-  // test 1
-  let data = {data: 'data'}
-  let response = {
-    ok: true,
-    status: 200,
-    json: function () {
-      return Promise.resolve(data)
-    }
-  }
-
-  let result = await zlFetch.responseHandler(response)
-  tape.equal(result, data, 'return JSON object if ok')
-
-  // test 2
-  let data2 = {err: 'THERE IS A FUCKING ERROR'}
-  let response2 = {
-    ok: false,
-    status: 400,
-    json: function () {
-      return Promise.resolve(data2)
-    }
-  }
-
-  try {
-    await zlFetch.responseHandler(response2)
-  } catch (e) {
-    let result = {
-      err: data2,
-      statusCode: 400
-    }
-    tape.deepEqual(e, result, 'return {err, statusCode} if not ok')
-  }
 
   tape.end()
 })

@@ -1,7 +1,8 @@
 /* global fetch */
+
 export default function zlFetch (url, options = undefined) {
   return fetch(url, optionsHandler(options))
-    .then(responseHandler)
+    .then(handleResponse)
 }
 
 export function optionsHandler (options) {
@@ -9,6 +10,7 @@ export function optionsHandler (options) {
     method: 'GET',
     headers: {'Content-Type': 'application/json'}
   }
+
   if (!options) return def
 
   let r = Object.assign({}, def, options)
@@ -25,9 +27,9 @@ export function optionsHandler (options) {
   return r
 }
 
-// http://stackoverflow.com/questions/29473426/fetch-reject-promise-with-json-error-object/32488827
-export function responseHandler (response) {
-  return response.json()
+export const handlers = {
+  JSONResponseHandler (response) {
+    return response.json()
     .then(json => {
       if (response.ok) {
         return json
@@ -38,6 +40,28 @@ export function responseHandler (response) {
         })
       }
     })
+  },
+  textResponseHandler (response) {
+    if (response.ok) {
+      return response.text()
+    } else {
+      return Promise.reject({
+        statusCode: response.status,
+        err: response.statusText
+      })
+    }
+  }
+}
+
+export function handleResponse (response) {
+  let contentType = response.headers.get('content-type')
+  if (contentType.includes('application/json')) {
+    return handlers.JSONResponseHandler(response)
+  } else if (contentType.includes('text/html')) {
+    return handlers.textResponseHandler(response)
+  } else {
+    throw new Error(`Sorry, content-type ${contentType} not supported`)
+  }
 }
 
 function objectIsEmpty (obj) {
