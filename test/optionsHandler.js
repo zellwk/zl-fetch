@@ -53,5 +53,18 @@ test('optionsHandler', (tape) => {
   })
   tape.deepEqual(test5, expected5, 'retain all other options')
 
+  // test 6 - 8. Should not have body key if body is falsey
+  let expected6 = {
+    method: 'GET',
+    headers: {'Content-Type': 'application/json'}
+  }
+  let test6 = zlFetch.optionsHandler({body: undefined})
+  let test61 = zlFetch.optionsHandler({body: null})
+  let test62 = zlFetch.optionsHandler({body: {}})
+
+  tape.deepEqual(expected6, test6, 'should not contain body key if body is falsey')
+  tape.deepEqual(expected6, test61, 'should not contain body key if body is falsey')
+  tape.deepEqual(expected6, test62, 'should not contain body key if body is falsey')
+
   tape.end()
 })

@@ -19,9 +19,11 @@ export function optionsHandler (options) {
     r.headers.Authorization = 'Bearer ' + options.token
   }
 
-  if (objectHasKey(options, 'body') && !objectIsEmpty(options.body)) {
-    delete r.body
-    r.body = JSON.stringify(options.body)
+  delete r.body
+  if (options.body) {
+    if (!objectIsEmpty(options.body)) {
+      r.body = JSON.stringify(options.body)
+    }
   }
 
   return r
