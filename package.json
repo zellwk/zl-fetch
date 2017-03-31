@@ -1,6 +1,6 @@
 {
   "name": "zlfetch",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Fetch helper that returns a JSON string for both responses and errors",
   "main": "dist/index.js",
   "scripts": {
