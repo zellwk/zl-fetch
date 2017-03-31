@@ -1,7 +1,6 @@
 const t = require('tape')
 const tapePromise = require('tape-promise').default
 const test = tapePromise(t)
-const zlFetch = require('../dist/index')
 const handlers = require('../dist/index').handlers
 
 test('JSONResponseHandler', async (tape) => {
@@ -33,10 +32,7 @@ test('JSONResponseHandler', async (tape) => {
   try {
     await handlers.JSONResponseHandler(response2)
   } catch (e) {
-    let result = {
-      err: data2,
-      statusCode: 400
-    }
+    let result = Object.assign({}, {statusCode: response2.status}, data2)
     tape.deepEqual(e, result, 'return {err, statusCode} if not ok')
   }
   tape.end()

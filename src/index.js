@@ -36,10 +36,7 @@ export const handlers = {
       if (response.ok) {
         return json
       } else {
-        return Promise.reject({
-          statusCode: response.status,
-          err: json
-        })
+        return Promise.reject(Object.assign({}, {statusCode: response.status}, json))
       }
     })
   },
@@ -47,10 +44,7 @@ export const handlers = {
     if (response.ok) {
       return response.text()
     } else {
-      return Promise.reject({
-        statusCode: response.status,
-        err: response.statusText
-      })
+      return Promise.reject(Object.assign({}, {statusCode: response.status}, {err: response.statusText}))
     }
   }
 }
