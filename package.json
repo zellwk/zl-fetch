@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "babel src/index.js -o dist/index.js --presets=es2015 --watch",
     "babel": "babel src/index.js -o dist/index.js --presets=es2015",
-    "dev-test": "tape-watch -r babel-register babel-preset-es2015 test/**/*.js | faucet",
-    "test": "tape -r babel-register babel-preset-es2015 test/**/*.js",
+    "watch": "tape-watch -r babel-register babel-preset-es2015 test/**/*.js | faucet",
+    "test": "standard && tape -r babel-register babel-preset-es2015 test/**/*.js",
     "prepublish": "npm run babel",
     "release": "np"
   },
@@ -23,6 +23,7 @@
     "np": "^2.13.1",
     "sinon": "^2.1.0",
     "sinon-stub-promise": "^4.0.0",
+    "standard": "^10.0.1",
     "tap-spec": "^4.1.1",
     "tape": "^4.6.3",
     "tape-promise": "^2.0.1",

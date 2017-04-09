@@ -1,5 +1,4 @@
 /* global fetch */
-
 export default function zlFetch (url, options = undefined) {
   return fetch(url, optionsHandler(options))
     .then(handleResponse)
@@ -36,7 +35,10 @@ export const handlers = {
       if (response.ok) {
         return json
       } else {
-        return Promise.reject(Object.assign({}, {statusCode: response.status}, json))
+        return Promise.reject(Object.assign({}, json, {
+          statusCode: response.status, // statusCode is deprecated.
+          status: response.status
+        }))
       }
     })
   },
@@ -44,7 +46,11 @@ export const handlers = {
     if (response.ok) {
       return response.text()
     } else {
-      return Promise.reject(Object.assign({}, {statusCode: response.status}, {err: response.statusText}))
+      return Promise.reject(Object.assign({}, {
+        statusCode: response.status,
+        status: response.status,
+        err: response.statusText
+      }))
     }
   }
 }

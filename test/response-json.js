@@ -3,10 +3,7 @@ const tapePromise = require('tape-promise').default
 const test = tapePromise(t)
 const handlers = require('../dist/index').handlers
 
-test('JSONResponseHandler', async (tape) => {
-  tape.plan(2)
-
-  // test 1
+test('Handle JSON response', async (tape) => {
   let data = {data: 'data'}
   let response = {
     ok: true,
@@ -19,7 +16,10 @@ test('JSONResponseHandler', async (tape) => {
   let result = await handlers.JSONResponseHandler(response)
   tape.equal(result, data, 'return JSON object if ok')
 
-  // test 2
+  tape.end()
+})
+
+test('Handle JSON error', async (tape) => {
   let data2 = {err: 'THERE IS A FUCKING ERROR'}
   let response2 = {
     ok: false,
@@ -32,8 +32,16 @@ test('JSONResponseHandler', async (tape) => {
   try {
     await handlers.JSONResponseHandler(response2)
   } catch (e) {
-    let result = Object.assign({}, {statusCode: response2.status}, data2)
-    tape.deepEqual(e, result, 'return {err, statusCode} if not ok')
+    tape.equal(e.status, 400, 'should return status')
+    // Deprecated statusCode
+    tape.equal(e.statusCode, 400, 'should return statusCode')
+
+    let expected = {
+      status: 400,
+      statusCode: 400,
+      err: 'THERE IS A FUCKING ERROR'
+    }
+    tape.deepEqual(e, expected, 'should return error object in addition to status')
   }
   tape.end()
 })
