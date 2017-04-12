@@ -36,6 +36,7 @@ export const handlers = {
         return json
       } else {
         return Promise.reject(Object.assign({}, json, {
+          statusText: response.statusText,
           statusCode: response.status, // statusCode is deprecated.
           status: response.status
         }))
@@ -43,15 +44,19 @@ export const handlers = {
     })
   },
   textResponseHandler (response) {
-    if (response.ok) {
-      return response.text()
-    } else {
-      return Promise.reject(Object.assign({}, {
-        statusCode: response.status,
-        status: response.status,
-        err: response.statusText
-      }))
-    }
+    return response.text()
+    .then(text => {
+      if (response.ok) {
+        return json
+      } else {
+        return Promise.reject({
+          statusText: response.statusText,
+          statusCode: response.status, // statusCode is deprecated.
+          status: response.status,
+          err: text
+        })
+      }
+    })
   }
 }
 
