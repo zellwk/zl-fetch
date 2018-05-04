@@ -7,8 +7,8 @@ const sinon = require('sinon')
 
 test('handleResponse', async (t) => {
   t.plan(2)
-  // calls JSONResponseHandler if JSON
-  let stub = sinon.stub(handlers, 'JSONResponseHandler').returns(true)
+  // calls handleJSON if JSON
+  let stub = sinon.stub(handlers, 'handleJSON').returns(true)
   let response = {
     headers: {
       get () {
@@ -17,11 +17,11 @@ test('handleResponse', async (t) => {
     }
   }
   await zlFetch.handleResponse(response)
-  t.equal(stub.calledOnce, true, 'calls JSONResponseHandler for JSON content type')
+  t.equal(stub.calledOnce, true, 'calls handleJSON for JSON content type')
   stub.restore()
 
   // calls textResponseHandler if XML
-  let stub2 = sinon.stub(handlers, 'textResponseHandler').returns(true)
+  let stub2 = sinon.stub(handlers, 'handleText').returns(true)
   let response2 = {
     headers: {
       get () {
@@ -30,7 +30,7 @@ test('handleResponse', async (t) => {
     }
   }
   await zlFetch.handleResponse(response2)
-  t.equal(stub.calledOnce, true, 'calls textResponseHandler for JSON content type')
+  t.equal(stub.calledOnce, true, 'calls handleText for Text content type')
   stub2.restore()
 
   t.end()

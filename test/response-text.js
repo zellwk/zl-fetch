@@ -1,12 +1,12 @@
 const t = require('tape')
 const tapePromise = require('tape-promise').default
 const test = tapePromise(t)
-const handlers = require('../dist/index').handlers
+const { handleText } = require('../dist/index').handlers
 
 test('Handle text response', async (tape) => {
   // test 1
-  let text = 'yay'
-  let response = {
+  const text = 'yay'
+  const response = {
     ok: true,
     status: 200,
     text: function () {
@@ -14,27 +14,31 @@ test('Handle text response', async (tape) => {
     }
   }
 
-  let result = await handlers.textResponseHandler(response)
-  tape.equal(result, text, 'return text if ok')
+  const result = await handleText(response)
+  tape.equal(result, text)
   tape.end()
 })
 
 test('Handle text error', async (tape) => {
-  let response2 = {
+  const text = 'yay'
+  const response2 = {
     ok: false,
     status: 401,
-    statusText: 'Unauthorized'
+    statusText: 'Unauthorized',
+    text: function () {
+      return Promise.resolve(text)
+    }
   }
 
   try {
-    await handlers.textResponseHandler(response2)
+    await handleText(response2)
   } catch (e) {
-    let expected = {
-      err: 'Unauthorized',
-      statusCode: 401,
-      status: 401
+    const expected = {
+      err: 'yay',
+      status: 401,
+      statusText: 'Unauthorized'
     }
-    tape.deepEqual(e, expected, 'return {err, statusCode} if not ok')
+    tape.deepEqual(e, expected)
   }
 
   tape.end()
