@@ -200,4 +200,4 @@ zlFetch accepts the same options as Fetch, with these additional options:
 
 ## Supported response types
 
-zlFetch supports only `json` and `text` response types. More response types will be supported later. If you run into an error with a response type, file an issue and I'll work on it asap.
+zlFetch supports only `json` and `text` response types. More response types can be supported. If you run into an error with a response type, file an issue and I'll work on it asap.
