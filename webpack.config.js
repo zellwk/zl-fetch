@@ -10,9 +10,9 @@ module.exports = {
   },
   externals: {
     btoa: {
-      commonjs: 'bota',
-      commonjs2: 'bota',
-      amd: 'bota',
+      commonjs: 'btoa',
+      commonjs2: 'btoa',
+      amd: 'btoa',
       root: '_'
     }
   },
