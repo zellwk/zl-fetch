@@ -167,15 +167,15 @@ zlFetch("http://some-website.com", {
   headers: { "Content-Type": "application/x-www-form-urlencoded" },
   body: {
     key: "value",
-    web: 'https://google.com
+    web: "https://google.com"
   }
-})
+});
 
 fetch("http://some-website.com", {
   method: "post",
   headers: { "Content-Type": "application/x-www-form-urlencoded" },
-  body: 'key=value&web=https%3A%2F%2Fgoogle.com'
-})
+  body: "key=value&web=https%3A%2F%2Fgoogle.com"
+});
 ```
 
 ## Authentication
