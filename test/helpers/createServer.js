@@ -9,6 +9,8 @@ app.use('/text', (req, res) => res.send('booyah!'))
 app.use('/text-error', (req, res) =>
   res.status(400).send('username required'))
 
+app.use('/params', (req, res) => res.json(req.query))
+
 let server
 exports.before = async t => (server = await app.listen(3000))
 exports.after = async t => server.close()

@@ -45,4 +45,15 @@ test('handles text error', async t => {
   }
 })
 
+test('passes params', async t => {
+  const res = await zlFetch('http://localhost:3000/params', {
+    params: {
+      one: 'two',
+      web: 'http://google.com'
+    }
+  })
+
+  t.deepEqual(res.body, { one: 'two', web: 'http://google.com' })
+})
+
 test.after.always(after)
