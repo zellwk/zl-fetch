@@ -28,9 +28,9 @@ yarn add zl-fetch
 
 To use zlFetch directly in your browser, download [`dist/index.min.js` directly](https://www.jsdelivr.com/package/npm/zl-fetch) or use the CDN link .
 
-<!--```
-<script src=""> </script>
-``` -->
+```html
+<script src="https://cdn.jsdelivr.net/npm/zl-fetch"></script>
+```
 
 ### Basic usage (in Browser)
 
