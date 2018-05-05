@@ -55,7 +55,7 @@ import zlFetch from "zl-fetch";
 zlFetch requires [ismorphic-fetch](https://github.com/matthew-andrews/isomorphic-fetch) in Node based environments.
 
 ```js
-require('isomorphic-fetch)
+require("isomorphic-fetch");
 const zlFetch = require("zl-fetch");
 
 zlFetch("http://some-random-website.com")
@@ -154,8 +154,6 @@ zlFetch("http://some-website.com", {
 zlFetch adds `Authorization` headers for you if `username`, `password` or `token` fields are found in the options.
 
 **Basic authentication:**
-
-Base64 encoding automatically in browsers.
 
 If you execute zlFetch in a Node environment, make sure you have installed [btoa](https://www.npmjs.com/package/btoa). No need to require it. zlFetch will handle it for you.
 
