@@ -23,19 +23,30 @@ const setHeaders = ({
   return h
 }
 
-const createURL = opts => {
-  const { url, params } = opts
-  if (!params) return url
-
+const queryStringify = params => {
+  if (!params) return
   return Object.entries(params)
     .reduce((acc, entry, index) => {
       const [param, value] = entry
       const encoded = index === 0
-        ? `?${param}=${encodeURIComponent(value)}`
+        ? `${param}=${encodeURIComponent(value)}`
         : `&${param}=${encodeURIComponent(value)}`
-
       return `${acc}${encoded}`
-    }, `${url}`)
+    }, '')
+}
+
+const createURL = opts => {
+  const { url, params } = opts
+  if (!params) return url
+  return `${url}?${queryStringify(params)}`
+}
+
+const formatBody = opts => {
+  const type = opts.headers.get('content-type')
+
+  if (type.includes('json')) return JSON.stringify(opts.body)
+  if (type.includes('x-www-form-urlencoded')) return queryStringify(opts.body)
+  return opts.body
 }
 
 // Defaults to GET method
@@ -47,9 +58,7 @@ module.exports = (options = {}) => {
   opts.url = createURL(opts)
   opts.method = opts.method || 'get'
   opts.headers = setHeaders(opts)
-  opts.body = opts.headers.get('content-type') === 'application/json'
-    ? JSON.stringify(opts.body)
-    : opts.body
+  opts.body = formatBody(opts)
 
   delete opts.username
   delete opts.password

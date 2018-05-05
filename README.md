@@ -114,7 +114,28 @@ zlFetch('http://some-website.com', {
 
 ## Sending `POST` requests
 
-Set `method` to `post` to send a post request. zlFetch will set `Content-Type` will be set to `application/json` for you.
+Set `method` to `post` to send a post request. zlFetch will set `Content-Type` will be set to `application/json` for you. Set the `content-type` header yourself if you wish to send other content types.
+
+If `Content-Type` is `application/json`, zlFetch will convert the body to JSON.
+
+```js
+// with zlFetch
+zlFetch("http://some-website.com", {
+  method: "post"
+});
+
+// Resultant fetch api
+fetch("http://some-website.com", {
+  method: "post",
+  headers: { "Content-Type": "application/json" }
+});
+
+// Setting other content type
+zlFetch("http://some-website.com", {
+  method: "post",
+  headers: { "Content-Type": "application/x-www-form-urlencoded" }
+});
+```
 
 If `Content-Type` is `application/json`, zlFetch will convert the body to JSON.
 
@@ -123,28 +144,38 @@ If `Content-Type` is `application/json`, zlFetch will convert the body to JSON.
 zlFetch("http://some-website.com", {
   method: "post",
   body: {
-    key: 'value'
+    key: "value"
   }
 });
 
-// with fetch api
+// Resultant fetch
 fetch("http://some-website.com", {
   method: "post",
-  headers: { 'Content-Type': 'application/json' }
+  headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
-    key: 'value'
+    key: "value"
   })
 });
 ```
 
-Set the `content-type` header yourself if you wish to send other content types.
+If `Content-Type` is `application/x-www-form-urlencoded`, zlFetch will convert the body to a query string.
 
 ```js
+// with zlFetch
 zlFetch("http://some-website.com", {
   method: "post",
-  headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-  body: 'key=value'
-});
+  headers: { "Content-Type": "application/x-www-form-urlencoded" },
+  body: {
+    key: "value",
+    web: 'https://google.com
+  }
+})
+
+fetch("http://some-website.com", {
+  method: "post",
+  headers: { "Content-Type": "application/x-www-form-urlencoded" },
+  body: 'key=value&web=https%3A%2F%2Fgoogle.com'
+})
 ```
 
 ## Authentication
