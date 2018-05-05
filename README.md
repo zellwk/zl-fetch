@@ -153,7 +153,11 @@ zlFetch("http://some-website.com", {
 
 zlFetch adds `Authorization` headers for you if `username`, `password` or `token` fields are found in the options.
 
-Basic authentication:
+**Basic authentication:**
+
+Base64 encoding automatically in browsers.
+
+If you execute zlFetch in a Node environment, make sure you have installed [btoa](https://www.npmjs.com/package/btoa). No need to require it. zlFetch will handle it for you.
 
 ```js
 // with zlFetch
@@ -168,7 +172,7 @@ fetch("http://some-website.com", {
 });
 ```
 
-Token based authentication:
+**Token based authentication:**
 
 ```js
 // with zlFetch
