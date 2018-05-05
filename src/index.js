@@ -1,9 +1,7 @@
-/* global fetch */
-
-const parseOptions = require('./parseOptions')
-const { handleResponse } = require('./handleResponse')
+const createRequestOptions = require('./createRequestOptions')
+const handleResponse = require('./handleResponse')
 
 module.exports = (url, options = undefined) => {
-  return fetch(url, parseOptions(options))
+  return fetch(url, createRequestOptions(options))
     .then(handleResponse)
 }
