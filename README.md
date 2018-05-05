@@ -16,7 +16,7 @@
 
 ## Download/install
 
-You install zlFetch through npm or yarn.
+You can install zlFetch through npm or yarn.
 
 ```
 # Installing through npm
@@ -26,7 +26,7 @@ npm install zl-fetch --save
 yarn add zl-fetch
 ```
 
-To use zlFetch directly in your browser, download [`dist/index.min.js` directly](https://www.jsdelivr.com/package/npm/zl-fetch) or use the CDN link .
+If you want to use zlFetch in your browser, download [`dist/index.min.js`](https://www.jsdelivr.com/package/npm/zl-fetch) or use the CDN link below:
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/zl-fetch"></script>
@@ -65,7 +65,7 @@ zlFetch("http://some-random-website.com")
 
 ## Quick Start
 
-zlFetch transforms fetch responses for you. You can use the response from your server (or api) directly in the first `then` call. If
+zlFetch transforms fetch responses for you. You can use the response from the server in the first `then` chain. If the response is an error, zlFetch directs it to the `catch` chain.
 
 ```js
 zlFetch("http://some-website.com")
@@ -80,7 +80,7 @@ zlFetch("http://some-website.com")
   });
 ```
 
-Response is an object. The available properties are:
+These properties are available in the response object:
 
 1.  `headers`—response headers
 2.  `body`—response body
@@ -116,16 +116,16 @@ zlFetch('http://some-website.com', {
 
 ## Sending `POST` requests
 
-Set `method` to `post` to send a post request. `Content-Type` will be set to `application/json` automatically.
+Set `method` to `post` to send a post request. zlFetch will set `Content-Type` will be set to `application/json` for you.
 
-If `Content-Type` is `application/json`, body will be converted into JSON for you.
+If `Content-Type` is `application/json`, zlFetch will convert the body to JSON.
 
 ```js
 // with zlFetch
 zlFetch("http://some-website.com", {
   method: "post",
   body: {
-    key: value
+    key: 'value'
   }
 });
 
@@ -134,12 +134,12 @@ fetch("http://some-website.com", {
   method: "post",
   headers: { 'Content-Type': 'application/json' }
   body: JSON.stringify({
-    key: value
+    key: 'value'
   })
 });
 ```
 
-If you wish to send other content types, set your headers manually.
+Set the `content-type` header yourself if you wish to send other content types.
 
 ```js
 zlFetch("http://some-website.com", {
@@ -151,11 +151,15 @@ zlFetch("http://some-website.com", {
 
 ## Authentication
 
-zlFetch adds `Authorization` headers for you if `username`, `password` or `token` fields are found in the options.
+zlFetch adds `Authorization` headers for you if include any of these options:
+
+1.  `username`
+2.  `password`
+3.  `token`
 
 **Basic authentication:**
 
-If you execute zlFetch in a Node environment, make sure you have installed [btoa](https://www.npmjs.com/package/btoa). No need to require it. zlFetch will handle it for you.
+If you use zlFetch in Node, make sure you install [btoa](https://www.npmjs.com/package/btoa). No need to require it. zlFetch will handle it for you.
 
 ```js
 // with zlFetch
@@ -202,4 +206,4 @@ zlFetch accepts the same options as Fetch, with these additional options:
 
 ## Supported response types
 
-zlFetch supports only `json` and `text` response types. More response types can be supported. If you run into an error with a response type, file an issue and I'll work on it asap.
+zlFetch supports only `json` and `text` response types for now. If you run into an error with a response type, file an issue and I'll support it asap.
