@@ -1,17 +1,25 @@
 import 'isomorphic-fetch'
 import test from 'ava'
-import createRequestOptions from '../../src/createRequestOptions'
+import createRequestOptions from '../src/createRequestOptions'
 import btoa from 'btoa'
 
-test('createRequestOptions (default settings)', t => {
+test('Defaults to get method', t => {
   const test = createRequestOptions({})
   t.is(test.method, 'get')
+})
+
+test('Defaults to application/json', t => {
+  const test = createRequestOptions({})
   t.is(test.headers.get('content-type'), 'application/json')
+})
+
+test('Defaults to undefined body', t => {
+  const test = createRequestOptions({})
   t.is(test.body, undefined)
 })
 
-test('createRequestOptions (respect user headers)', t => {
-  const body = { key: 'value' }
+test('Respect user-created headers', t => {
+  const body = 'param1=value1'
   const test = createRequestOptions({
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -25,18 +33,19 @@ test('createRequestOptions (respect user headers)', t => {
   t.deepEqual(test.body, body)
 })
 
-test('createRequestOptions (respect user method)', t => {
+test('Respects user-created method', t => {
   const body = { key: 'value' }
-  const test = createRequestOptions({
-    method: 'post',
-    body
-  })
-
+  const test = createRequestOptions({ method: 'post', body })
   t.is(test.method, 'post')
+})
+
+test('Converts body to JSON if content type not specified', t => {
+  const body = { key: 'value' }
+  const test = createRequestOptions({ body })
   t.deepEqual(test.body, JSON.stringify(body))
 })
 
-test('createRequestOptions (basic auth)', t => {
+test('Creates auth header for basic auth', t => {
   const error = t.throws(() => createRequestOptions({ username: 'aoeu' }))
   t.is(error.message, 'password required for basic authentication')
 
@@ -47,7 +56,20 @@ test('createRequestOptions (basic auth)', t => {
   t.is(test.headers.get('authorization'), `Basic ${btoa('123:123')}`)
 })
 
-test('createRequestOptions (token auth)', t => {
+test('Creates auth header for token auth', t => {
   const test = createRequestOptions({ token: 'mytoken' })
   t.is(test.headers.get('authorization'), 'Bearer mytoken')
+})
+
+test('Creates params', t => {
+  const test = createRequestOptions({
+    url: 'link',
+    params: {
+      key1: 'value1',
+      website: 'https://test.com'
+    }
+  })
+
+  const urlString = `link?key1=value1website=https%3A%2F%2Ftest.com`
+  t.is(test.url, urlString)
 })

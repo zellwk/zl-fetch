@@ -1,3 +1,4 @@
+/* globals Headers btoa */
 const setHeaders = ({
   headers = {},
   body,
@@ -11,23 +12,26 @@ const setHeaders = ({
   if (username || password) {
     if (!username) throw new TypeError('username required for basic authentication')
     if (!password) throw new TypeError('password required for basic authentication')
-
     const encode = typeof btoa === 'function'
       ? btoa
       : require('btoa')
-
-    const base = encode(`${username}:${password}`)
-    h.set('Authorization', `Basic ${base}`)
+    h.set('Authorization', `Basic ${encode(`${username}:${password}`)}`)
   }
-
-  if (token) {
-    h.set('Authorization', `Bearer ${token}`)
-  }
-  h.get('content-type')
-    ? undefined
-    : h.set('content-type', 'application/json')
+  if (token) h.set('Authorization', `Bearer ${token}`)
+  if (!h.get('content-type')) h.set('content-type', 'application/json')
 
   return h
+}
+
+const createURL = opts => {
+  const { url, params } = opts
+  if (!params) return url
+
+  return Object.entries(params)
+    .reduce((acc, entry) => {
+      const [param, value] = entry
+      return `${acc}${param}=${encodeURIComponent(value)}`
+    }, `${url}?`)
 }
 
 // Defaults to GET method
@@ -35,6 +39,8 @@ const setHeaders = ({
 // Creates authorization headers automatically
 module.exports = (options = {}) => {
   const opts = Object.assign({}, options)
+
+  opts.url = createURL(opts)
   opts.method = opts.method || 'get'
   opts.headers = setHeaders(opts)
   opts.body = opts.headers.get('content-type') === 'application/json'
