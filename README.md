@@ -1,7 +1,5 @@
 # zlFetch
 
-<!-- Some badges to go here -->
-
 <!-- [![](https://data.jsdelivr.com/v1/package/npm/zl-fetch/badge)](https://www.jsdelivr.com/package/npm/zl-fetch) -->
 
 ## Features
