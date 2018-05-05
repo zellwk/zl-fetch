@@ -7,7 +7,8 @@
 1.  zlFetch includes helpers for creating your request. Including:
     1.  Query parameters
     2.  Authorization
-    3.  Sending JSON Data
+    3.  Converts `body` to JSON if you're sending JSON data
+    4.  Converts `body` to a valid query string if you're sending `x-www-form-urlencoded`
 2.  zlFetch helps transforms a fetch request.
     1.  Use your responses in the first `then` method.
     2.  Directs 400 and 500 errors into the `catch` method.
