@@ -28,10 +28,14 @@ const createURL = opts => {
   if (!params) return url
 
   return Object.entries(params)
-    .reduce((acc, entry) => {
+    .reduce((acc, entry, index) => {
       const [param, value] = entry
-      return `${acc}${param}=${encodeURIComponent(value)}`
-    }, `${url}?`)
+      const encoded = index === 0
+        ? `?${param}=${encodeURIComponent(value)}`
+        : `&${param}=${encodeURIComponent(value)}`
+
+      return `${acc}${encoded}`
+    }, `${url}`)
 }
 
 // Defaults to GET method

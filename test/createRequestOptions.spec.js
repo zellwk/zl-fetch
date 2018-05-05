@@ -70,6 +70,6 @@ test('Creates params', t => {
     }
   })
 
-  const urlString = `link?key1=value1website=https%3A%2F%2Ftest.com`
+  const urlString = `link?key1=value1&website=https%3A%2F%2Ftest.com`
   t.is(test.url, urlString)
 })
