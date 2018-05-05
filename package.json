@@ -5,6 +5,14 @@
   "main": "src/index.js",
   "browser": "dist/index.js",
   "module": "src/index.js",
+  "keywords": [
+    "fetch",
+    "javascript",
+    "browser",
+    "nodejs",
+    "ajax"
+  ],
+  "repository": "https://github.com/zellwk/zl-fetch.js",
   "scripts": {
     "test": "NODE_ENV=test ava",
     "watch": "NODE_ENV=test ava --watch",
