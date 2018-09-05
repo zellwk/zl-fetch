@@ -73,9 +73,9 @@ zlFetch("http://some-website.com")
     const body = response.body;
   })
   .catch(error => {
-    const headers = response.headers;
-    const body = response.body;
-    const status = response.status;
+    const headers = error.headers;
+    const body = error.body;
+    const status = error.status;
   });
 ```
 
@@ -104,13 +104,13 @@ zlFetch formats and encodes query parameters for you if you provide a params opt
 ```js
 zlFetch('http://some-website.com', {
   params: {
-    param1: 'value1'
+    param1: 'value1',
     param2: 'to encode'
   }
 })
 
-// Result URL
-// http://some-website.com?param1=value1&param2=to%20encode
+// Result
+fetch('http://some-website.com?param1=value1&param2=to%20encode')
 ```
 
 ## Sending `POST` requests
