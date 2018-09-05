@@ -16,6 +16,5 @@ module.exports = {
       root: '_'
     }
   },
-  mode: 'development'
-  // mode: 'production'
+  mode: 'production'
 }
