@@ -13,7 +13,7 @@ const setHeaders = ({
     if (!username) throw new TypeError('username required for basic authentication')
     if (!password) throw new TypeError('password required for basic authentication')
 
-    const encode = typeof window === 'object' && typeof window.btoa === 'function'
+    const encode = typeof window === 'object' && window.btoa
       ? btoa
       : require('btoa')
     h.set('Authorization', `Basic ${encode(`${username}:${password}`)}`)
