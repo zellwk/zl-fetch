@@ -26,14 +26,14 @@
   "author": "Zell Liew <zellwk@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "ava": "^0.25.0",
+    "ava": "^1.2.0",
     "btoa": "^1.2.1",
     "express": "^4.16.3",
     "isomorphic-fetch": "^2.2.1",
-    "np": "2.19",
-    "standard": "^11.0.1",
+    "np": "^4.0.2",
+    "standard": "^12.0.1",
     "webpack": "^4.7.0",
-    "webpack-cli": "^2.1.2"
+    "webpack-cli": "^3.2.1"
   },
   "peerDependencies": {
     "btoa": "^1.2.1"
