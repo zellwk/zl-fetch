@@ -23,6 +23,9 @@
   "ava": {
     "files": "test/*.spec.js"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "author": "Zell Liew <zellwk@gmail.com>",
   "license": "MIT",
   "devDependencies": {
