@@ -1,13 +1,3 @@
-const parseResponse = (response, type) =>
-  response[type]()
-    .then(body => formatOutput(response, body))
-
-const getHeaders = response => {
-  return response.headers.entries
-    ? getBrowserFetchHeaders(response)
-    : getNodeFetchHeaders(response)
-}
-
 // window.fetch response headers contains entries method.
 const getBrowserFetchHeaders = response => {
   const headers = {}
@@ -27,6 +17,12 @@ const getNodeFetchHeaders = response => {
   return headers
 }
 
+const getHeaders = response => {
+  return response.headers.entries
+    ? getBrowserFetchHeaders(response)
+    : getNodeFetchHeaders(response)
+}
+
 const formatOutput = (response, body) => {
   const headers = getHeaders(response)
   const returnValue = {
@@ -41,6 +37,10 @@ const formatOutput = (response, body) => {
     ? Promise.resolve(returnValue)
     : Promise.reject(returnValue)
 }
+
+const parseResponse = (response, type) =>
+  response[type]()
+    .then(body => formatOutput(response, body))
 
 const handleResponse = response => {
   const type = response.headers.get('content-type')
