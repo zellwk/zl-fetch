@@ -38,9 +38,23 @@ const formatOutput = (response, body) => {
     : Promise.reject(returnValue)
 }
 
-const parseResponse = (response, type) =>
-  response[type]()
-    .then(body => formatOutput(response, body))
+const parseResponse = (response, type) => {
+  // Response object can only be used once.
+  // We clone the response object here so users can use it again if they want to.
+  // Checks required because browser support isn't solid.
+  // https://developer.mozilla.org/en-US/docs/Web/API/Response/clone
+
+  const clone = typeof response.clone === 'function'
+    ? response.clone()
+    : undefined
+
+  const passedResponse = clone || response
+
+  // This will do response.json(), response.text(), etc.
+  // We use bracket notation to allow multiple types to be parsed at the same time.
+  return response[type]()
+    .then(body => formatOutput(passedResponse, body))
+}
 
 const handleResponse = response => {
   const type = response.headers.get('content-type')

@@ -56,4 +56,15 @@ test('passes params', async t => {
   t.deepEqual(res.body, { one: 'two', web: 'http://google.com' })
 })
 
+// Note to self: Create a test for cloned response.
+// Requires Isomorphic-fetch to upgrade to node-fetch v1.4.0 to test on node
+// test('Sends a cloned response (whenever possible)', async t => {
+//   const res = await zlFetch('http://localhost:3000/params')
+//   const clone = res.response.clone()
+//   // console.log('testing')
+//   console.log()
+
+//   t.is(clone, 'function')
+// })
+
 test.after.always(after)

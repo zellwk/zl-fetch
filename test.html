@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body></body>
+
+  <script src="dist/index.js"></script>
+  <script>
+    // Response.clone should work on supported browsers.
+    zlFetch("https://api.github.com/users/zellwk/repos").then(
+      ({ response }) => {
+        const clone = response.clone();
+        console.log(clone);
+      }
+    );
+  </script>
+</html>
