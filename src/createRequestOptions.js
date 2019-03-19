@@ -2,7 +2,7 @@
 const setHeaders = ({
   headers = {},
   body,
-  method,
+  method = 'get',
   username,
   password,
   token
@@ -19,7 +19,10 @@ const setHeaders = ({
     h.set('Authorization', `Basic ${encode(`${username}:${password}`)}`)
   }
   if (token) h.set('Authorization', `Bearer ${token}`)
-  if (!h.get('content-type')) h.set('content-type', 'application/json')
+
+  if (method !== 'get' && !h.get('content-type')) {
+    h.set('content-type', 'application/json')
+  }
 
   return h
 }
@@ -45,6 +48,7 @@ const createURL = opts => {
 const formatBody = opts => {
   const type = opts.headers.get('content-type')
 
+  if (!type) return
   if (type.includes('json')) return JSON.stringify(opts.body)
   if (type.includes('x-www-form-urlencoded')) return queryStringify(opts.body)
   return opts.body

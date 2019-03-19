@@ -16,12 +16,17 @@ test('Respects user-created method', t => {
 })
 
 // Headers
-test('Defaults to application/json', t => {
+test(`Headers: Should be null for 'GET' requests`, t => {
   const test = createRequestOptions({})
+  t.is(test.headers.get('content-type'), null)
+})
+
+test('Headers: Should be application/json for all other requests', t => {
+  const test = createRequestOptions({ method: 'post' })
   t.is(test.headers.get('content-type'), 'application/json')
 })
 
-test('Respect user-created headers', t => {
+test('Headers: Should respect user-created headers', t => {
   const test = createRequestOptions({
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -34,20 +39,29 @@ test('Respect user-created headers', t => {
 })
 
 // Body
-test('Defaults to undefined body', t => {
+test('Body: should be undefined by default', t => {
   const test = createRequestOptions({})
   t.is(test.body, undefined)
 })
 
-test('JSON.stringify body for json', t => {
+test(`Body: should be undefined for 'get' requests`, t => {
   const body = { key: 'value' }
-  const test = createRequestOptions({ body })
+  const test = createRequestOptions({ body, method: 'get' })
+  t.is(test.body, undefined)
+})
+
+test(`Body: should be a JSON string if content type is 'application/json`, t => {
+  const body = { key: 'value' }
+  const test = createRequestOptions({ body, method: 'post' })
   t.deepEqual(test.body, JSON.stringify(body))
 })
 
 test('QueryStringify body for x-www-form-urlencoded', t => {
   const test = createRequestOptions({
-    headers: { 'content-type': 'application/x-www-form-urlencoded' },
+    method: 'post',
+    headers: {
+      'content-type': 'application/x-www-form-urlencoded'
+    },
     body: {
       key: 'value',
       web: 'https://stringify.com'
