@@ -10,4 +10,3 @@ const zlFetch = (url, options) => {
 
 module.exports = zlFetch
 module.exports.default = zlFetch
-module.exports.zlFetch = zlFetch
