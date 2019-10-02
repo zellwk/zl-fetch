@@ -8,5 +8,17 @@ const zlFetch = (url, options) => {
     .then(handleResponse)
 }
 
+// ========================
+// Shorthands
+// ========================
+const methods = ['get', 'post', 'put', 'patch', 'delete']
+
+for (const method of methods) {
+  zlFetch[method] = function (url, options) {
+    options = Object.assign({ method }, options)
+    return zlFetch(url, options)
+  }
+}
+
 module.exports = zlFetch
 module.exports.default = zlFetch

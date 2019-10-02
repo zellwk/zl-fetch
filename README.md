@@ -1,73 +1,89 @@
+<!-- Breaking Changes -->
+<!-- 1. params -> queries -->
+<!-- 2. Authorization -->
+<!-- 3. No need to require btoa anymore -->
+<!-- 4. Shorthands -->
+
 # zlFetch
 
 <!-- [![](https://data.jsdelivr.com/v1/package/npm/zl-fetch/badge)](https://www.jsdelivr.com/package/npm/zl-fetch) -->
 
 ## Features
 
-1.  zlFetch includes helpers for creating your request. Including:
-    1.  Query parameters
-    2.  Authorization
-    3.  Converts `body` to JSON if you're sending JSON data
-    4.  Converts `body` to a valid query string if you're sending `x-www-form-urlencoded`
-2.  zlFetch helps transforms a fetch request.
-    1.  Use your responses in the first `then` method.
-    2.  Directs 400 and 500 errors into the `catch` method.
+1.  zlFetch helps you create your request. It helps you:
+    1. Create query parameters for GET requests
+    2. Do Basic and Bearer-type authorization
+    3. Formats `body` for JSON or `x-www-form-urlencoded`
+2.  zlFetch transforms the response:
+    1.  It lets you use your responses in the first `then` method.
+    2.  It directs 400 and 500 errors into `catch`.
 
 ## Download/install
 
-You can install zlFetch through npm or yarn.
+You can install zlFetch through npm.
 
 ```
 # Installing through npm
 npm install zl-fetch --save
-
-# Installing through yarn
-yarn add zl-fetch
 ```
 
 If you want to use zlFetch in your browser, download [`dist/index.min.js`](https://www.jsdelivr.com/package/npm/zl-fetch) or use the CDN link below:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/zl-fetch@2.1.8"></script>
-```
-
-### Basic usage (in Browser)
-
-Make sure Fetch is supported. You can provide support with [ismorphic-fetch](https://github.com/matthew-andrews/isomorphic-fetch) if you need to.
-
-```js
-// Basic usage
-zlFetch("http://some-random-website.com")
-  .then(r => console.log(r))
-  .catch(e => console.log(e));
-```
-
-You can use ES6 import to import zlFetch too.
-
-```js
-// ES6 imports
-import zlFetch from "zl-fetch";
-```
-
-### Basic usage (in Node)
-
-zlFetch requires [ismorphic-fetch](https://github.com/matthew-andrews/isomorphic-fetch) in Node based environments.
-
-```js
-require("isomorphic-fetch");
-const zlFetch = require("zl-fetch");
-
-zlFetch("http://some-random-website.com")
-  .then(r => console.log(r))
-  .catch(e => console.log(e));
+<script src="https://cdn.jsdelivr.net/npm/zl-fetch"></script>
 ```
 
 ## Quick Start
 
-zlFetch transforms fetch responses for you. You can use the response from the server in the first `then` chain. If the response is an error, zlFetch directs it to the `catch` chain.
+### Basic usage (in Browser)
 
 ```js
-zlFetch("http://some-website.com")
+// Basic usage
+zlFetch("http://your-website.com")
+  .then(response => console.log(response))
+  .catch(error => console.log(error));
+```
+
+You can use import zlFetch the ES6 way if you wish to:
+
+```js
+// ES6 imports
+import zlFetch from "zl-fetch";
+zlFetch("http://your-website.com")
+  .then(response => console.log(response))
+  .catch(error => console.log(error));
+```
+
+Fetch is supported natively in modern browsers. If you need to support older browsers, add [ismorphic-fetch](https://github.com/matthew-andrews/isomorphic-fetch) in your code. zlFetch does not include `isomorphic-fetch` for you.
+
+
+### Basic usage (in Node)
+
+zlFetch requires [ismorphic-fetch](https://github.com/matthew-andrews/isomorphic-fetch) in Node based environments. Then, use `zlFetch` as normal.
+
+```
+npm install -S isomorphic-fetch
+```
+
+```js
+const zlFetch = require("zl-fetch");
+zlFetch("http://your-website.com")
+  .then(response => console.log(response))
+  .catch(error => console.log(error));
+```
+
+## Response and Error objects
+
+`zlFetch` changes the response and error objects. In zlFetch, `response` and `error` objects both include these five properties:
+
+1.  `headers`: response headers
+2.  `body`: response body
+3.  `status`: response status
+4.  `statusText`: response status text
+5.  `response`: original response from Fetch
+
+```js
+zlFetch("http://your-website.com")
   .then(response => {
     const headers = response.headers;
     const body = response.body;
@@ -79,91 +95,79 @@ zlFetch("http://some-website.com")
   });
 ```
 
-These properties are available in the response object:
+## `GET` requests
 
-1.  `headers`—response headers
-2.  `body`—response body
-3.  `status`—response status
-4.  `statusText`—response status text
-5.  `response`—original response from Fetch
-
-## Sending `GET` requests
-
-zlFetch performs a `GET` request by default. Enter a url as the first parameter.
+To send a `GET` request, enter the endpoint as the first argument.
 
 ```js
 // With zlFetch
-zlFetch("http://some-website.com");
+zlFetch("http://your-website.com");
 
-// with fetch api
-fetch("http://some-website.com");
+// With fetch api
+fetch("http://your-website.com");
 ```
 
-zlFetch formats and encodes query parameters for you if you provide a params option.
+zlFetch formats and encodes query parameters for you if you provide a `queries` option.
 
 ```js
-zlFetch('http://some-website.com', {
-  params: {
+zlFetch('http://your-website.com', {
+  queries: {
     param1: 'value1',
     param2: 'to encode'
   }
 })
 
-// Result
-fetch('http://some-website.com?param1=value1&param2=to%20encode')
+// With fetch API
+fetch('http://your-website.com?param1=value1&param2=to%20encode')
 ```
 
-## Sending `POST` requests
+## `POST` requests
 
-Set `method` to `post` to send a post request. zlFetch will set `Content-Type` will be set to `application/json` for you. Set the `content-type` header yourself if you wish to send other content types.
-
-If `Content-Type` is `application/json`, zlFetch will convert the body to JSON.
+Set `method` to `post` to send a post request. zlFetch will set `Content-Type` will be set to `application/json` for you. It will also convert your `body` to a JSON string automatically.
 
 ```js
 // with zlFetch
-zlFetch("http://some-website.com", {
-  method: "post"
-});
-
-// Resultant fetch api
-fetch("http://some-website.com", {
-  method: "post",
-  headers: { "Content-Type": "application/json" }
-});
-
-// Setting other content type
-zlFetch("http://some-website.com", {
-  method: "post",
-  headers: { "Content-Type": "application/x-www-form-urlencoded" }
-});
-```
-
-If `Content-Type` is `application/json`, zlFetch will convert the body to JSON.
-
-```js
-// with zlFetch
-zlFetch("http://some-website.com", {
+zlFetch("http://your-website.com", {
   method: "post",
   body: {
     key: "value"
   }
 });
 
-// Resultant fetch
-fetch("http://some-website.com", {
+// Resultant fetch api
+fetch("http://your-website.com", {
   method: "post",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
     key: "value"
   })
 });
+
+// Setting other content type
+zlFetch("http://your-website.com", {
+  method: "post",
+  headers: { "Content-Type": "application/x-www-form-urlencoded" }
+});
 ```
 
-If `Content-Type` is `application/x-www-form-urlencoded`, zlFetch will convert the body to a query string.
+### Other Content-Types
+
+You may choose to overwrite `Content-Type` yourself. To do so, pass `headers` and `Content-Type` property.
 
 ```js
-// with zlFetch
-zlFetch("http://some-website.com", {
+fetch("http://your-website.com", {
+  method: "post",
+  headers: { "Content-Type": "Another Content Type" },
+  body: {
+    key: "value"
+  )
+});
+```
+
+If `Content-Type` is set to `application/x-www-form-urlencoded`, zlFetch will format `body` to be valid for `x-www-form-urlencoded`.
+
+```js
+zlFetch("http://your-website.com", {
   method: "post",
   headers: { "Content-Type": "application/x-www-form-urlencoded" },
   body: {
@@ -172,68 +176,76 @@ zlFetch("http://some-website.com", {
   }
 });
 
-fetch("http://some-website.com", {
+// Resultant fetch api
+fetch("http://your-website.com", {
   method: "post",
   headers: { "Content-Type": "application/x-www-form-urlencoded" },
   body: "key=value&web=https%3A%2F%2Fgoogle.com"
 });
 ```
 
-## Authentication
+## Authentication/Authorization
 
-zlFetch adds `Authorization` headers for you if include any of these options:
-
-1.  `username`
-2.  `password`
-3.  `token`
-
-**Basic authentication:**
-
-If you use zlFetch in Node, make sure you install [btoa](https://www.npmjs.com/package/btoa). No need to require it. zlFetch will handle it for you.
+zlFetch adds `Authorization` headers for you if you include an `auth` property.
 
 ```js
-// with zlFetch
-zlFetch("http://some-website.com", {
-  username: "yourusername",
-  password: "12345678"
-});
+zlFetch("http://your-website.com", {
+  auth: /* Your credentials */
+})
+```
 
-// with fetch
-fetch("http://some-website.com", {
+### Basic Authentication
+
+To perform basic authentication, pass `username` and `password` into `auth`.
+
+```js
+zlFetch("http://your-website.com", {
+  auth: {
+    username: 'your-username'
+    password: 'your-password'
+  }
+})
+
+// Resultant fetch api
+fetch("http://your-website.com", {
   headers: { Authorization: `Basic ${btoa("yourusername:12345678")}` }
 });
 ```
 
-**Token based authentication:**
+
+### Token/Bearer Authentication
+
+To perform token-based authentication, pass your token into `auth`.
 
 ```js
-// with zlFetch
-zlFetch("http://some-website.com", {
-  token: "token_12345"
+zlFetch("http://your-website.com", {
+  token: "token12345"
 });
 
-// with fetch
-fetch("http://some-website.com", {
-  headers: { Authorization: `Bearer token_12345` }
+// Resultant fetch api
+fetch("http://your-website.com", {
+  headers: { Authorization: `Bearer token12345` }
 });
 ```
 
-## Options
+## Shorhand methods
 
-zlFetch accepts the same options as Fetch, with these additional options:
+From `v3.0` onwards, zlFetch supports method shorthands.
+
+Supported shorthand methods include:
+
+1. `get`
+2. `post`
+3. `put`
+4. `patch`
+5. `delete`
 
 ```js
-{
-  // Query parameters
-  params: {},
-
-  // For authentication
-  username: undefined,
-  password: undefined,
-  token: undefined
-}
+// These two are the same
+zlFetch.post('http://your-website.com')
+zlFetch('http://your-website.com', { method: 'post' })
 ```
 
-## Supported response types
+## Response Types
 
-zlFetch supports only `json` and `text` response types for now. If you run into an error with a response type, file an issue and I'll support it asap.
+zlFetch supports only `json` and `text` response types for now. If you run into an error with a response type, file an issue and I'll support it asap. (This might take time though!)

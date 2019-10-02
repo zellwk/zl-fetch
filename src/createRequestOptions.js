@@ -1,27 +1,31 @@
-/* globals Headers btoa */
+/* globals Headers */
 const setHeaders = ({
   headers = {},
   body,
   method = 'get',
-  username,
-  password,
-  token
+  auth
 } = {}) => {
+  if (!window.Headers) require('isomorphic-fetch')
   const h = new Headers(headers)
 
-  if (username || password) {
-    if (!username) throw new TypeError('username required for basic authentication')
-    if (!password) throw new TypeError('password required for basic authentication')
-
-    const encode = typeof window === 'object' && window.btoa
-      ? btoa
-      : require('btoa')
-    h.set('Authorization', `Basic ${encode(`${username}:${password}`)}`)
-  }
-  if (token) h.set('Authorization', `Bearer ${token}`)
-
-  if (method !== 'get' && !h.get('content-type')) {
+  // Sets content type to 'application/json' for POST, PUT, PATCH, DELETE requests
+  if (!h.get('content-type') && method !== 'get') {
     h.set('content-type', 'application/json')
+  }
+
+  if (auth) {
+    // Basic Auth
+    if (typeof auth === 'object') {
+      const { username, password } = auth
+      if (!username) throw new Error('Username required for basic authentication')
+      if (!password) throw new Error('Password required for basic authentication')
+
+      const encode = window.btoa || require('btoa')
+      h.set('Authorization', 'Basic ' + encode(`${username}:${password}`))
+    } else {
+      // Bearer Auth
+      h.set('Authorization', `Bearer ${auth}`)
+    }
   }
 
   return h
@@ -39,18 +43,26 @@ const queryStringify = params => {
     }, '')
 }
 
+/**
+ * Appends queries to URL
+ * @param {Object} opts
+ */
 const createURL = opts => {
-  const { url, params } = opts
-  if (!params) return url
-  return `${url}?${queryStringify(params)}`
+  const { url, queries } = opts
+  if (!queries) return url
+  return `${url}?${queryStringify(queries)}`
 }
 
 const formatBody = opts => {
-  const type = opts.headers.get('content-type')
+  const method = opts.method
+  if (method === 'get') return
 
+  const type = opts.headers.get('content-type')
   if (!type) return
-  if (type.includes('json')) return JSON.stringify(opts.body)
+
   if (type.includes('x-www-form-urlencoded')) return queryStringify(opts.body)
+  if (type.includes('json')) return JSON.stringify(opts.body)
+
   return opts.body
 }
 
@@ -65,9 +77,8 @@ module.exports = (options = {}) => {
   opts.headers = setHeaders(opts)
   opts.body = formatBody(opts)
 
-  delete opts.username
-  delete opts.password
-  delete opts.token
+  // Removes options that are not native to Fetch
+  delete opts.auth
 
   return opts
 }
