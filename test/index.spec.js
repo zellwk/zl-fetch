@@ -1,5 +1,4 @@
 /* globals beforeEach afterEach describe expect it */
-require('isomorphic-fetch')
 const portastic = require('portastic')
 const zlFetch = require('../src/index')
 const app = require('./helpers/createServer')
