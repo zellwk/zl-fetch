@@ -1,11 +1,12 @@
 /* globals fetch */
 const createRequestOptions = require('./createRequestOptions')
-const handleResponse = require('./handleResponse')
+const { handleResponse, handleError } = require('./handleResponse')
 
 const zlFetch = (url, options) => {
   const opts = createRequestOptions(Object.assign({ url }, options))
   return fetch(opts.url, opts)
     .then(handleResponse)
+    .catch(handleError)
 }
 
 // ========================

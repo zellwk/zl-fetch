@@ -1,7 +1,7 @@
 // window.fetch response headers contains entries method.
 const getBrowserFetchHeaders = response => {
   const headers = {}
-  for (let [header, value] of response.headers.entries()) {
+  for (const [header, value] of response.headers.entries()) {
     headers[header] = value
   }
   return headers
@@ -66,4 +66,20 @@ const handleResponse = response => {
   throw new Error(`zlFetch does not support content-type ${type} yet`)
 }
 
-module.exports = handleResponse
+/**
+ * Formats all errors into zlFetch style error
+ * @param {Object} error - The error object
+ */
+const handleError = error => {
+  if (error.message === 'Failed to fetch') {
+    /* eslint-disable */
+    return Promise.reject({ error })
+    /* eslint-enable */
+  }
+  return Promise.reject(error)
+}
+
+module.exports = {
+  handleResponse,
+  handleError
+}
