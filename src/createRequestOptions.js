@@ -1,4 +1,4 @@
-/* globals Headers */
+/* globals Headers btoa */
 const setHeaders = ({
   headers = {},
   body,
@@ -23,7 +23,13 @@ const setHeaders = ({
       if (!username) throw new Error('Username required for basic authentication')
       if (!password) throw new Error('Password required for basic authentication')
 
-      const encode = window.btoa || require('btoa')
+      let encode
+      if ('btoa' in window) {
+        encode = btoa
+      } else {
+        encode = require('btoa')
+      }
+
       h.set('Authorization', 'Basic ' + encode(`${username}:${password}`))
     } else {
       // Bearer Auth
