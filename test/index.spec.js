@@ -22,7 +22,7 @@ afterEach(async () => {
 describe('Sending requests', () => {
   it('Queries in GET requests', async () => {
     // Sends GET requests with queries
-    const response = await zlFetch(`${rootendpoint}/queries`, {
+    const { response } = await zlFetch(`${rootendpoint}/queries`, {
       queries: {
         normal: 'normal',
         toEncode: 'http://google.com'
@@ -38,7 +38,7 @@ describe('Sending requests', () => {
   })
 
   it('x-www-form-urlencoded', async () => {
-    const response = await zlFetch(`${rootendpoint}/body`, {
+    const { response } = await zlFetch(`${rootendpoint}/body`, {
       method: 'post',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: { message: 'good game' }
@@ -50,7 +50,7 @@ describe('Sending requests', () => {
   })
 
   it('JSON', async () => {
-    const response = await zlFetch(`${rootendpoint}/body`, {
+    const { response } = await zlFetch(`${rootendpoint}/body`, {
       method: 'post',
       body: { message: 'good game' }
     })
@@ -68,24 +68,29 @@ describe('Sending requests', () => {
 describe('Response Types', () => {
   it('should handle JSON response', async () => {
     // Should handle JSON
-    const response = await zlFetch(`${rootendpoint}/json`)
+    const { response } = await zlFetch(`${rootendpoint}/json`)
     const { key } = await response.json()
     expect(key).toBe('value')
   })
 
   it('should handle text response', async () => {
     // Should handle Text
-    const response = await (await zlFetch(`${rootendpoint}/text`)).text()
-    expect(response).toBe('A paragraph of text')
+    const { response } = await zlFetch(`${rootendpoint}/text`)
+    const text = await response.text()
+    expect(text).toBe('A paragraph of text')
   })
 
-  it('Should throw if JSON error', async () => {
-    expect(async () => await zlFetch(`${rootendpoint}/text-error`)).not.toThrow()
-    const response = await zlFetch(`${rootendpoint}/text-error`)
-    expect(response.ok).toBeFalsy()
-    expect(response.status).toBe(400)
-    const body = await response.text()
-    expect(body).toBe('An error message')
+  it('Should throw if JSON error', async done => {
+    zlFetch(`${rootendpoint}/text-error`).then(ok => {
+      expect(ok).toBeUndefined()
+      done()
+    }).catch(async ({ response }) => {
+      expect(response.ok).toBeFalsy()
+      expect(response.status).toBe(400)
+      const body = await response.text()
+      expect(body).toBe('An error message')
+      done()
+    })
   })
 })
 

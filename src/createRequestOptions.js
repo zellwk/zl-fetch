@@ -1,12 +1,12 @@
-import { Headers } from 'cross-fetch';
-
-/* globals Headers btoa */
 const setHeaders = ({
   headers = {},
   body,
   method = 'get',
   auth
 } = {}) => {
+  if (typeof Headers === 'undefined') {
+    require('cross-fetch/polyfill')
+  }
   const h = new Headers(headers)
 
   // Sets content type to 'application/json' for POST, PUT, PATCH, DELETE requests

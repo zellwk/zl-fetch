@@ -27,9 +27,9 @@ const createConfig = ({ input, format, ext = 'js' }) => {
       name: 'zlFetch',
       file: `dist/${input}.${ext}`,
       format,
-      sourcemap: true,
     },
     plugins,
+    inlineDynamicImports: true,
   }
 }
 

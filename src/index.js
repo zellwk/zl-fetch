@@ -1,7 +1,10 @@
 /* globals fetch */
-import fetch from 'cross-fetch';
 import createRequestOptions from './createRequestOptions'
 import { handleResponse, handleError } from './handleResponse'
+
+if (typeof fetch === 'undefined') {
+  require('cross-fetch/polyfill')
+}
 
 const zlFetch = (url, options) => {
   const opts = createRequestOptions(Object.assign({ url }, options))
