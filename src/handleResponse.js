@@ -56,7 +56,7 @@ const parseResponse = (response, type) => {
     .then(body => formatOutput(passedResponse, body))
 }
 
-const handleResponse = response => {
+export const handleResponse = response => {
   const type = response.headers.get('content-type')
   if (type.includes('json')) return parseResponse(response, 'json')
   if (type.includes('text')) return parseResponse(response, 'text')
@@ -70,16 +70,11 @@ const handleResponse = response => {
  * Formats all errors into zlFetch style error
  * @param {Object} error - The error object
  */
-const handleError = error => {
+export const handleError = error => {
   if (error.message === 'Failed to fetch') {
     /* eslint-disable */
     return Promise.reject({ error })
     /* eslint-enable */
   }
   return Promise.reject(error)
-}
-
-module.exports = {
-  handleResponse,
-  handleError
 }

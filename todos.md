@@ -6,9 +6,9 @@
     2. Fetching with Github. Make sure it passes.
     3. Test `clone` with Chrome and Safari (for support and no support case)
 2. Backend test with Node-fetch
-  1. Sswitch to using `node-fetch` because `isomorphic-fetch` doesn't support `clone`. Only node-fetch > v1.4 supports clone.
+  - [ ] Switch to using `node-fetch` because `isomorphic-fetch` doesn't support `clone`. Only node-fetch > v1.4 supports clone.
 3. Support Blob
-  1. Issue: Node fetch doesn't support `.blob`
+  - [ ] Issue: Node fetch doesn't support `.blob`
   2. Solution: Figure out how to use streams and other APIs like File Reader before adding to zlFetch.
 4. Support ArrayBuffer
   1. Issues:

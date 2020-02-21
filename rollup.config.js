@@ -5,25 +5,38 @@ import commonjs from '@rollup/plugin-commonjs'
 import json from '@rollup/plugin-json'
 import babel from 'rollup-plugin-babel'
 
-export default {
-  input: 'src/index.js',
-  output: [{
-    file: 'manual-test/index.js',
-    name: 'zlFetch',
-    format: 'umd'
-  }],
-  plugins: [
-    commonjs(),
-    globals(),
-    builtins(),
-    json(),
-    resolve(),
-    babel({
-      exclude: 'node_modules/**', // only transpile our source code
-      runtimeHelpers: true,
-      babelrc: false,
-      presets: [['@babel/env']],
-      plugins: ['@babel/plugin-transform-runtime']
-    })
-  ]
+const plugins = [
+  json(),
+  resolve(),
+  globals(),
+  builtins(),
+  babel({
+    exclude: 'node_modules/**', // only transpile our source code
+    runtimeHelpers: true,
+    babelrc: false,
+    presets: [['@babel/env']],
+    plugins: ['@babel/plugin-transform-runtime']
+  }),
+  commonjs(),
+]
+
+const createConfig = ({ input, format, ext = 'js' }) => {
+  return {
+    input: `src/${input}.js`,
+    output: {
+      name: 'zlFetch',
+      file: `dist/${input}.${ext}`,
+      format,
+      sourcemap: true,
+    },
+    plugins,
+  }
 }
+
+require('rimraf').sync('dist')
+
+export default [
+  { input: 'index', format: 'esm', ext: 'mjs' },
+  { input: 'index', format: 'esm' },
+  { input: 'index', format: 'umd' },
+].map(createConfig)

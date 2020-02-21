@@ -1,43 +1,43 @@
 /* globals describe expect it */
-const createRequestOptions = require('../src/createRequestOptions')
+import createRequestOptions from '../src/createRequestOptions'
 const btoa = require('btoa')
 
 describe('Method', () => {
-  it('should default to GET', () => {
+  it('should default to GET', async () => {
     // Defaults to GET
-    let request = createRequestOptions()
+    let request = await createRequestOptions()
     expect(request.method).toBe('get')
 
     // Respects user method otherwise
-    request = createRequestOptions({ method: 'post' })
+    request = await createRequestOptions({ method: 'post' })
     expect(request.method).toBe('post')
   })
 })
 
 describe('Headers', () => {
-  it('Content Type', () => {
+  it('Content Type', async () => {
     // 'Content-Type' should be undefined for GET requests
     // This creates simple requests
-    let request = createRequestOptions()
+    let request = await createRequestOptions()
     let headers = request.headers
     expect(headers.get('content-type')).toBe(null)
 
     // 'Content-Type' should be set to 'application/json' for any other requests
-    request = createRequestOptions({ method: 'post' })
+    request = await createRequestOptions({ method: 'post' })
     headers = request.headers
     expect(headers.get('content-type')).toBe('application/json')
 
     // Should request user-created 'Content-Type'
-    request = createRequestOptions({
+    request = await createRequestOptions({
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     })
     headers = request.headers
     expect(headers.get('content-type')).toMatch(/x-www-form-urlencoded/)
   })
 
-  it('Authorization', () => {
+  it('Authorization', async () => {
     // Basic Auth Headers
-    let request = createRequestOptions({
+    let request = await createRequestOptions({
       auth: { username: 'username', password: 'password' }
     })
     let auth = request.headers.get('authorization')
@@ -47,19 +47,19 @@ describe('Headers', () => {
 
     // Basic Auth should throw without username or password
     try {
-      createRequestOptions({ auth: { password: 'password' } })
+      await createRequestOptions({ auth: { password: 'password' } })
     } catch (error) {
       expect(error.message).toMatch(/Username required/)
     }
 
     try {
-      createRequestOptions({ auth: { username: 'username' } })
+      await createRequestOptions({ auth: { username: 'username' } })
     } catch (error) {
       expect(error.message).toMatch(/Password required/)
     }
 
     // Bearer Auth Headers
-    request = createRequestOptions({ auth: 'token' })
+    request = await createRequestOptions({ auth: 'token' })
     auth = request.headers.get('authorization')
     const token = auth.split(' ')[1]
     expect(auth).toMatch(/Bearer/)
@@ -71,19 +71,19 @@ describe('Body', () => {
   it('Default Body', async done => {
     // Body should be undefined for GET requests
     // This prevents preflight requests
-    let request = createRequestOptions({
+    let request = await createRequestOptions({
       body: { message: 'Good game' }
     })
 
     // Body should be stringified for JSON requests
-    request = createRequestOptions({
+    request = await createRequestOptions({
       method: 'post',
       body: { message: 'Good game' }
     })
     expect(request.body).toBe(JSON.stringify({ message: 'Good game' }))
 
     // Body should remain raw for x-www-form-urlencoded
-    request = createRequestOptions({
+    request = await createRequestOptions({
       method: 'post',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: { message: 'Good game' }

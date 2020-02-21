@@ -1,5 +1,6 @@
-const bodyParser = require('body-parser')
-const express = require('express')
+import bodyParser from 'body-parser'
+import express from 'express'
+
 const app = express()
 
 // ========================
@@ -48,4 +49,4 @@ app.use('/forms-error', (req, res) => {
   res.status(400).send('An error message')
 })
 
-module.exports = app
+export default app

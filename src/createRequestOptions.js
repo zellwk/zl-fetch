@@ -1,3 +1,5 @@
+import { Headers } from 'cross-fetch';
+
 /* globals Headers btoa */
 const setHeaders = ({
   headers = {},
@@ -74,7 +76,7 @@ const formatBody = opts => {
 // Defaults to GET method
 // Defaults content type to application/json
 // Creates authorization headers automatically
-module.exports = (options = {}) => {
+export default (options = {}) => {
   const opts = Object.assign({}, options)
 
   opts.url = createURL(opts)

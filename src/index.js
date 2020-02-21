@@ -1,27 +1,25 @@
 /* globals fetch */
-require('isomorphic-fetch')
+import fetch from 'cross-fetch';
+import createRequestOptions from './createRequestOptions'
+import { handleResponse, handleError } from './handleResponse'
 
-// const createRequestOptions = require('./createRequestOptions')
-// const { handleResponse, handleError } = require('./handleResponse')
+const zlFetch = (url, options) => {
+  const opts = createRequestOptions(Object.assign({ url }, options))
+  return fetch(opts.url, opts)
+    .then(handleResponse)
+    .catch(handleError)
+}
 
-// const zlFetch = (url, options) => {
-//   const opts = createRequestOptions(Object.assign({ url }, options))
-//   return fetch(opts.url, opts)
-//     .then(handleResponse)
-//     .catch(handleError)
-// }
+// ========================
+// Shorthands
+// ========================
+const methods = ['get', 'post', 'put', 'patch', 'delete']
 
-// // ========================
-// // Shorthands
-// // ========================
-// const methods = ['get', 'post', 'put', 'patch', 'delete']
+for (const method of methods) {
+  zlFetch[method] = function (url, options) {
+    options = Object.assign({ method }, options)
+    return zlFetch(url, options)
+  }
+}
 
-// for (const method of methods) {
-//   zlFetch[method] = function (url, options) {
-//     options = Object.assign({ method }, options)
-//     return zlFetch(url, options)
-//   }
-// }
-//
-module.exports = function () { console.log('ha') }
-// module.exports = zlFetch
+export default zlFetch

@@ -1,7 +1,8 @@
 /* globals beforeEach afterEach describe expect it */
+import zlFetch from '../src/index'
+import app from './helpers/createServer'
+
 const portastic = require('portastic')
-const zlFetch = require('../src/index')
-const app = require('./helpers/createServer')
 
 let port
 let rootendpoint
@@ -19,7 +20,7 @@ afterEach(async () => {
 })
 
 describe('Sending requests', () => {
-  it('Queries in GET requests', async done => {
+  it('Queries in GET requests', async () => {
     // Sends GET requests with queries
     const response = await zlFetch(`${rootendpoint}/queries`, {
       queries: {
@@ -27,35 +28,36 @@ describe('Sending requests', () => {
         toEncode: 'http://google.com'
       }
     })
-    const url = response.response.url
+    const url = response.url
     expect(url).toMatch(/\?/)
 
     const queries = url.split('?')[1].split('&')
     expect(queries[0]).toBe('normal=normal')
     expect(queries[1]).toBe('toEncode=http%3A%2F%2Fgoogle.com')
 
-    done()
   })
 
-  it('x-www-form-urlencoded', async done => {
+  it('x-www-form-urlencoded', async () => {
     const response = await zlFetch(`${rootendpoint}/body`, {
       method: 'post',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: { message: 'good game' }
     })
 
-    expect(response.body.message).toBe('good game')
-    done()
+    const { message } = await response.json()
+
+    expect(message).toBe('good game')
   })
 
-  it('JSON', async done => {
+  it('JSON', async () => {
     const response = await zlFetch(`${rootendpoint}/body`, {
       method: 'post',
       body: { message: 'good game' }
     })
 
-    expect(response.body.message).toBe('good game')
-    done()
+    const { message } = await response.json()
+
+    expect(message).toBe('good game')
   })
 
   // TODO: Requires setting to multipart/form-data
@@ -64,37 +66,26 @@ describe('Sending requests', () => {
 })
 
 describe('Response Types', () => {
-  it('should handle JSON response', async done => {
+  it('should handle JSON response', async () => {
     // Should handle JSON
     const response = await zlFetch(`${rootendpoint}/json`)
-    const body = response.body
-    expect(body.key).toBe('value')
-
-    // Should throw if JSON error
-    try {
-      await zlFetch(`${rootendpoint}/json-error`)
-    } catch (error) {
-      expect(error).toBeTruthy()
-      expect(error.status).toBe(400)
-      expect(error.body.message).toBe('An error message')
-    }
-    done()
+    const { key } = await response.json()
+    expect(key).toBe('value')
   })
 
-  it('should handle text response', async done => {
+  it('should handle text response', async () => {
     // Should handle Text
-    const { body } = await zlFetch(`${rootendpoint}/text`)
-    expect(body).toBe('A paragraph of text')
+    const response = await (await zlFetch(`${rootendpoint}/text`)).text()
+    expect(response).toBe('A paragraph of text')
+  })
 
-    // Should throw if JSON error
-    try {
-      await zlFetch(`${rootendpoint}/text-error`)
-    } catch (error) {
-      expect(error).toBeTruthy()
-      expect(error.status).toBe(400)
-      expect(error.body).toBe('An error message')
-    }
-    done()
+  it('Should throw if JSON error', async () => {
+    expect(async () => await zlFetch(`${rootendpoint}/text-error`)).not.toThrow()
+    const response = await zlFetch(`${rootendpoint}/text-error`)
+    expect(response.ok).toBeFalsy()
+    expect(response.status).toBe(400)
+    const body = await response.text()
+    expect(body).toBe('An error message')
   })
 })
 
