@@ -1,25 +1,27 @@
 /* globals fetch */
-const createRequestOptions = require('./createRequestOptions')
-const { handleResponse, handleError } = require('./handleResponse')
+require('isomorphic-fetch')
 
-const zlFetch = (url, options) => {
-  const opts = createRequestOptions(Object.assign({ url }, options))
-  return fetch(opts.url, opts)
-    .then(handleResponse)
-    .catch(handleError)
-}
+// const createRequestOptions = require('./createRequestOptions')
+// const { handleResponse, handleError } = require('./handleResponse')
 
-// ========================
-// Shorthands
-// ========================
-const methods = ['get', 'post', 'put', 'patch', 'delete']
+// const zlFetch = (url, options) => {
+//   const opts = createRequestOptions(Object.assign({ url }, options))
+//   return fetch(opts.url, opts)
+//     .then(handleResponse)
+//     .catch(handleError)
+// }
 
-for (const method of methods) {
-  zlFetch[method] = function (url, options) {
-    options = Object.assign({ method }, options)
-    return zlFetch(url, options)
-  }
-}
+// // ========================
+// // Shorthands
+// // ========================
+// const methods = ['get', 'post', 'put', 'patch', 'delete']
 
-module.exports = zlFetch
-module.exports.default = zlFetch
+// for (const method of methods) {
+//   zlFetch[method] = function (url, options) {
+//     options = Object.assign({ method }, options)
+//     return zlFetch(url, options)
+//   }
+// }
+//
+module.exports = function () { console.log('ha') }
+// module.exports = zlFetch

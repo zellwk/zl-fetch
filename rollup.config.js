@@ -7,19 +7,19 @@ import babel from 'rollup-plugin-babel'
 
 export default {
   input: 'src/index.js',
-  output: {
-    file: 'dist/index.js',
+  output: [{
+    file: 'manual-test/index.js',
     name: 'zlFetch',
     format: 'umd'
-  },
+  }],
   plugins: [
-    json(),
+    commonjs(),
     globals(),
     builtins(),
-    commonjs(),
+    json(),
     resolve(),
     babel({
-      // exclude: 'node_modules/**', // only transpile our source code
+      exclude: 'node_modules/**', // only transpile our source code
       runtimeHelpers: true,
       babelrc: false,
       presets: [['@babel/env']],

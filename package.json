@@ -20,7 +20,7 @@
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
-    "build": "webpack --config webpack.config.js",
+    "build": "rollup -c",
     "prepublish": "npm run test && npm run build",
     "release": "np"
   },

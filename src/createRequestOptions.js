@@ -5,10 +5,6 @@ const setHeaders = ({
   method = 'get',
   auth
 } = {}) => {
-  if (typeof Headers === 'undefined') {
-    require('isomorphic-fetch')
-  }
-
   const h = new Headers(headers)
 
   // Sets content type to 'application/json' for POST, PUT, PATCH, DELETE requests
