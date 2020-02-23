@@ -3,11 +3,10 @@
   "version": "3.0.2",
   "description": "A library that makes the Fetch API a breeze",
   "browser": "dist/index.js",
-  "main": "src/index.js",
-  "module": "src/index.js",
+  "main": "dist/index.mjs",
+  "module": "dist/index.mjs",
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
   "keywords": [
     "fetch",
@@ -52,6 +51,7 @@
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-node-builtins": "^2.1.2",
     "rollup-plugin-node-globals": "^1.4.0",
+    "rollup-plugin-terser": "^5.2.0",
     "standard": "^14.3.1",
     "supertest": "^4.0.2",
     "webpack": "^4.41.6",
