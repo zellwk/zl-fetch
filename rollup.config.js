@@ -5,6 +5,8 @@ import commonjs from '@rollup/plugin-commonjs'
 import json from '@rollup/plugin-json'
 import babel from 'rollup-plugin-babel'
 
+require('rimraf').sync('dist')
+
 const plugins = [
   json(),
   resolve(),
@@ -17,7 +19,7 @@ const plugins = [
     presets: [['@babel/env']],
     plugins: ['@babel/plugin-transform-runtime']
   }),
-  commonjs(),
+  commonjs()
 ]
 
 const createConfig = ({ input, format, ext = 'js' }) => {
@@ -27,17 +29,15 @@ const createConfig = ({ input, format, ext = 'js' }) => {
       name: 'zlFetch',
       file: `dist/${input}.${ext}`,
       format,
-      sourcemap: true,
+      sourcemap: true
     },
     plugins,
-    inlineDynamicImports: true,
+    inlineDynamicImports: true
   }
 }
-
-require('rimraf').sync('dist')
 
 export default [
   { input: 'index', format: 'esm', ext: 'mjs' },
   { input: 'index', format: 'esm' },
-  { input: 'index', format: 'umd' },
+  { input: 'index', format: 'umd' }
 ].map(createConfig)

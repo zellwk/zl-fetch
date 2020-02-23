@@ -1,3 +1,4 @@
+/* global Headers btoa */
 const setHeaders = ({
   headers = {},
   body,
@@ -7,6 +8,7 @@ const setHeaders = ({
   if (typeof Headers === 'undefined') {
     require('cross-fetch/polyfill')
   }
+
   const h = new Headers(headers)
 
   // Sets content type to 'application/json' for POST, PUT, PATCH, DELETE requests
@@ -22,7 +24,7 @@ const setHeaders = ({
       if (!password) throw new Error('Password required for basic authentication')
 
       let encode
-      if ('btoa' in window) {
+      if (typeof btoa === 'undefined') {
         encode = btoa
       } else {
         encode = require('btoa')
