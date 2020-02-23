@@ -53,8 +53,6 @@
     "rollup-plugin-node-globals": "^1.4.0",
     "rollup-plugin-terser": "^5.2.0",
     "standard": "^14.3.1",
-    "supertest": "^4.0.2",
-    "webpack": "^4.41.6",
-    "webpack-cli": "^3.3.11"
+    "supertest": "^4.0.2"
   }
 }
