@@ -24,7 +24,7 @@ const setHeaders = ({
       if (!password) throw new Error('Password required for basic authentication')
 
       let encode
-      if (typeof btoa === 'undefined') {
+      if ('btoa' in window) {
         encode = btoa
       } else {
         encode = require('btoa')
