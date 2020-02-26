@@ -21,7 +21,7 @@
     "test:watch": "jest --watch",
     "build": "rollup -c",
     "prepublish": "npm run test && npm run build",
-    "release": "np"
+    "release": "np --no-publish && npm publish"
   },
   "author": "Zell Liew <zellwk@gmail.com>",
   "license": "MIT",
