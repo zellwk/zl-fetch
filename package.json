@@ -2,8 +2,8 @@
   "name": "zl-fetch",
   "version": "3.2.1",
   "description": "A library that makes the Fetch API a breeze",
-  "browser": "dist/index.js",
-  "main": "dist/index.mjs",
+  "browser": "dist/index-iife.js",
+  "main": "dist/index.js",
   "module": "dist/index.mjs",
   "files": [
     "dist"

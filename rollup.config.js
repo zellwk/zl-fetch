@@ -9,20 +9,21 @@ import { terser } from 'rollup-plugin-terser'
 const pkg = require('./package.json')
 require('rimraf').sync('dist')
 
+const outputs = [
+  { file: pkg.main, format: 'cjs' },
+  { file: pkg.module, format: 'esm' },
+  { file: pkg.browser, format: 'umd' }
+]
+
 export default {
   input: 'src/index.js',
-  output: [{
-    file: pkg.module,
-    format: 'esm',
-    sourcemap: true,
-    plugins: [terser()]
-  }, {
-    file: pkg.browser,
-    name: 'zlFetch',
-    format: 'umd',
-    sourcemap: true,
-    plugins: [terser()]
-  }],
+  output: outputs.map(output => {
+    return {
+      ...output,
+      sourcemap: true,
+      plugins: [terser()]
+    }
+  }),
   plugins: [
     json(),
     resolve(),
