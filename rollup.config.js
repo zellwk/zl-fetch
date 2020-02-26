@@ -20,6 +20,7 @@ export default {
   output: outputs.map(output => {
     return {
       ...output,
+      name: 'zlFetch',
       sourcemap: true,
       plugins: [terser()]
     }
