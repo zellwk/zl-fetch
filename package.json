@@ -1,6 +1,6 @@
 {
   "name": "zl-fetch",
-  "version": "3.2.1",
+  "version": "3.2.2",
   "description": "A library that makes the Fetch API a breeze",
   "browser": "dist/index-iife.js",
   "main": "dist/index.js",
