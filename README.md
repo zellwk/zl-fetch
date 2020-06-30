@@ -54,16 +54,9 @@ zlFetch("http://your-website.com")
   .catch(error => console.log(error));
 ```
 
-Fetch is supported natively in modern browsers. If you need to support older browsers, add [ismorphic-fetch](https://github.com/matthew-andrews/isomorphic-fetch) in your code. zlFetch does not include `isomorphic-fetch` for you.
-
-
 ### Basic usage (in Node)
 
-zlFetch requires [ismorphic-fetch](https://github.com/matthew-andrews/isomorphic-fetch) in Node based environments. Then, use `zlFetch` as normal.
-
-```
-npm install -S isomorphic-fetch
-```
+You use it the same way you expect to with browsers! 
 
 ```js
 const zlFetch = require("zl-fetch");
