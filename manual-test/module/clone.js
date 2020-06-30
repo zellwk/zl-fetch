@@ -1,9 +1,9 @@
-import zlFetch from '../dist/index.mjs'
+import zlFetch from '../../dist/index.mjs'
 
 const createListOfRepos = results => {
   const list = document.createDocumentFragment('ul')
   for (let i = 0; i < results.length; i++) {
-    const repo = results[i];
+    const repo = results[i]
     const item = document.createElement('li')
     item.textContent = `${repo.name} (${repo.full_name}), 🌟 ${repo.stargazers_count}`
     list.appendChild(item)
@@ -19,10 +19,7 @@ export default zlFetch('https://api.github.com/users/zellwk/repos')
     // append to document
     const repos = await clone.json()
     const container = document.getElementById('repos')
-    const titleH2 = document.createElement('h2')
-    titleH2.textContent = 'Repos'
     const list = createListOfRepos(repos)
-    container.appendChild(titleH2)
     container.appendChild(list)
   })
   .catch(err => {

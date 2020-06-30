@@ -1,4 +1,4 @@
-import zlFetch from '../dist/index.mjs'
+import zlFetch from '../../dist/index.mjs'
 
 const createListOfStats = results => {
   const list = document.createDocumentFragment('ul')
@@ -20,10 +20,7 @@ export default zlFetch('https://api.opendota.com/api/heroStats', {
     // append to document
     const stats = res.body
     const container = document.getElementById('stats')
-    const titleH2 = document.createElement('h2')
-    titleH2.textContent = 'Stats'
     const list = createListOfStats(stats)
-    container.appendChild(titleH2)
     container.appendChild(list)
   })
   .catch(err => {
