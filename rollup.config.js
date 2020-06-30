@@ -21,7 +21,7 @@ export default {
     return {
       ...output,
       name: 'zlFetch',
-      sourcemap: true,
+      sourcemap: false,
       plugins: [terser()]
     }
   }),
