@@ -212,7 +212,7 @@ To perform token-based authentication, pass your token into `auth`.
 
 ```js
 zlFetch("http://your-website.com", {
-  token: "token12345"
+  auth: "token12345"
 });
 
 // Resultant fetch api
