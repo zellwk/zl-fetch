@@ -7,6 +7,7 @@ if (typeof fetch === 'undefined') {
 }
 
 const zlFetch = (url, options) => {
+  // console.log('testing')
   const opts = createRequestOptions(Object.assign({ url }, options))
   return fetch(opts.url, opts)
     .then(handleResponse)

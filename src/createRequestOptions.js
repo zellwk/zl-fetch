@@ -26,7 +26,7 @@ const setHeaders = ({ headers = {}, body, method = 'get', auth } = {}) => {
       }
 
       let encode
-      if ('btoa' in window) {
+      if (typeof window === 'object' && 'btoa' in window) {
         encode = btoa
       } else {
         encode = require('btoa')
@@ -71,8 +71,9 @@ const formatBody = opts => {
   const contentType = opts.headers.get('content-type')
   if (!contentType) return
 
-  if (contentType.includes('x-www-form-urlencoded'))
+  if (contentType.includes('x-www-form-urlencoded')) {
     return queryStringify(opts.body)
+  }
   if (contentType.includes('json')) return JSON.stringify(opts.body)
 
   return opts.body

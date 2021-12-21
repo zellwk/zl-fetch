@@ -44,16 +44,14 @@ const parseResponse = (response, type) => {
   // Checks required because browser support isn't solid.
   // https://developer.mozilla.org/en-US/docs/Web/API/Response/clone
 
-  const clone = typeof response.clone === 'function'
-    ? response.clone()
-    : undefined
+  const clone =
+    typeof response.clone === 'function' ? response.clone() : undefined
 
   const passedResponse = clone || response
 
   // This will do response.json(), response.text(), etc.
   // We use bracket notation to allow multiple types to be parsed at the same time.
-  return response[type]()
-    .then(body => formatOutput(passedResponse, body))
+  return response[type]().then(body => formatOutput(passedResponse, body))
 }
 
 export const handleResponse = response => {
