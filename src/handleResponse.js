@@ -48,8 +48,7 @@ export const handleResponse = (response, options) => {
   // We do this because of two reasons. First, this lets users parse responses that zlFetch doesn't support.
   // Second, we do this because we to avoid cloning the response. Why? Some users want to use the response object, which prompted a `clone` in the first place. Unfortunately, we run into an error regarding cloning in Node when the response is large.  The issue happens because Node has a lower internal buffer size. Trying to response.clone() things in Node may end up hanging the process. That's why we don't use `clone`. If the user wants to, we provide them with the option to use a custom parser instead. (Adding highWaterMark does nothing to resolve the problem).
   // More info: https://github.com/node-fetch/node-fetch/blob/main/README.md#custom-highwatermark
-
-  if (options.customResponseParser) {
+  if (options && 'customResponseParser' in options) {
     return response
   }
 
