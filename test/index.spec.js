@@ -95,10 +95,14 @@ describe('Response Types', () => {
   // })
 })
 
-// it('Test sending to Github', async () => {
-//   const response = await zlFetch('https://api.github.com/users/zellwk/repos')
-//   console.log(response.body)
-// })
+it('Test sending to Github', async () => {
+  // const response = await fetch('https://api.github.com/users/zellwk/repos')
+  // const repos = await response.json()
+  // console.log(repos.length)
+
+  const response = await zlFetch('https://api.github.com/users/zellwk/repos')
+  expect(response.body.length === 30)
+})
 
 // ========================
 // Method Shorthands
