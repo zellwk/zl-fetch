@@ -37,26 +37,22 @@ describe('Sending requests', () => {
   })
 
   it('x-www-form-urlencoded', async () => {
-    const { response } = await zlFetch(`${rootendpoint}/body`, {
+    const response = await zlFetch(`${rootendpoint}/body`, {
       method: 'post',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: { message: 'good game' }
     })
 
-    const { message } = await response.json()
-
-    expect(message).toBe('good game')
+    expect(response.body.message).toBe('good game')
   })
 
   it('JSON', async () => {
-    const { response } = await zlFetch(`${rootendpoint}/body`, {
+    const response = await zlFetch(`${rootendpoint}/body`, {
       method: 'post',
       body: { message: 'good game' }
     })
 
-    const { message } = await response.json()
-
-    expect(message).toBe('good game')
+    expect(response.body.message).toBe('good game')
   })
 
   // TODO: Requires setting to multipart/form-data
@@ -67,39 +63,27 @@ describe('Sending requests', () => {
 describe('Response Types', () => {
   it('should handle JSON response', async () => {
     // Should handle JSON
-    const { response } = await zlFetch(`${rootendpoint}/json`)
-    const { key } = await response.json()
-    expect(key).toBe('value')
+    const response = await zlFetch(`${rootendpoint}/json`)
+    expect(response.body.key).toBe('value')
   })
 
   it('should handle text response', async () => {
-    // Should handle Text
-    const { response } = await zlFetch(`${rootendpoint}/text`)
-    const text = await response.text()
-    expect(text).toBe('A paragraph of text')
+    const response = await zlFetch(`${rootendpoint}/text`)
+    expect(response.body).toBe('A paragraph of text')
   })
 
-  // ECONN Error for some reason
-  // it('Should throw if JSON error', async () => {
-  //   zlFetch(`${rootendpoint}/text-error`)
-  //     .then(ok => {
-  //       expect(ok).toBeUndefined()
-  //     })
-  //     .catch(response => {
-  //       console.log(response)
-  //       expect(response.ok).toBeFalsy()
-  //       expect(response.status).toBe(400)
-  //       const body = await response.text()
-  //       expect(body).toBe('An error message')
-  //     })
-  // })
+  it('Should throw if JSON error', async () => {
+    try {
+      await zlFetch(`${rootendpoint}/text-error`)
+    } catch (error) {
+      expect(error.status).toBe(400)
+      expect(error.statusText).toBe('Bad Request')
+      expect(error.body).toBe('An error message')
+    }
+  })
 })
 
 it('Test sending to Github', async () => {
-  // const response = await fetch('https://api.github.com/users/zellwk/repos')
-  // const repos = await response.json()
-  // console.log(repos.length)
-
   const response = await zlFetch('https://api.github.com/users/zellwk/repos')
   expect(response.body.length === 30)
 })

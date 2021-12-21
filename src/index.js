@@ -9,7 +9,7 @@ if (typeof fetch === 'undefined') {
 const zlFetch = (url, options) => {
   const opts = createRequestOptions(Object.assign({ url }, options))
   return fetch(opts.url, opts)
-    .then(handleResponse)
+    .then(response => handleResponse(response, options))
     .catch(handleError)
 }
 

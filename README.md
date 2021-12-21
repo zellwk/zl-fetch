@@ -39,30 +39,30 @@ If you want to use zlFetch in your browser, download [`dist/index.min.js`](https
 
 ```js
 // Basic usage
-zlFetch("http://your-website.com")
+zlFetch('http://your-website.com')
   .then(response => console.log(response))
-  .catch(error => console.log(error));
+  .catch(error => console.log(error))
 ```
 
 You can use import zlFetch the ES6 way if you wish to:
 
 ```js
 // ES6 imports
-import zlFetch from "zl-fetch";
-zlFetch("http://your-website.com")
+import zlFetch from 'zl-fetch'
+zlFetch('http://your-website.com')
   .then(response => console.log(response))
-  .catch(error => console.log(error));
+  .catch(error => console.log(error))
 ```
 
 ### Basic usage (in Node)
 
-You use it the same way you expect to with browsers! 
+You use it the same way you expect to with browsers!
 
 ```js
-const zlFetch = require("zl-fetch");
-zlFetch("http://your-website.com")
+const zlFetch = require('zl-fetch')
+zlFetch('http://your-website.com')
   .then(response => console.log(response))
-  .catch(error => console.log(error));
+  .catch(error => console.log(error))
 ```
 
 ## Response and Error objects
@@ -76,16 +76,16 @@ zlFetch("http://your-website.com")
 5.  `response`: original response from Fetch
 
 ```js
-zlFetch("http://your-website.com")
+zlFetch('http://your-website.com')
   .then(response => {
-    const headers = response.headers;
-    const body = response.body;
+    const headers = response.headers
+    const body = response.body
   })
   .catch(error => {
-    const headers = error.headers;
-    const body = error.body;
-    const status = error.status;
-  });
+    const headers = error.headers
+    const body = error.body
+    const status = error.status
+  })
 ```
 
 ## `GET` requests
@@ -94,10 +94,10 @@ To send a `GET` request, enter the endpoint as the first argument.
 
 ```js
 // With zlFetch
-zlFetch("http://your-website.com");
+zlFetch('http://your-website.com')
 
 // With fetch api
-fetch("http://your-website.com");
+fetch('http://your-website.com')
 ```
 
 zlFetch formats and encodes query parameters for you if you provide a `queries` option.
@@ -120,27 +120,27 @@ Set `method` to `post` to send a post request. zlFetch will set `Content-Type` w
 
 ```js
 // with zlFetch
-zlFetch("http://your-website.com", {
-  method: "post",
+zlFetch('http://your-website.com', {
+  method: 'post',
   body: {
-    key: "value"
+    key: 'value'
   }
-});
+})
 
 // Resultant fetch api
-fetch("http://your-website.com", {
-  method: "post",
-  headers: { "Content-Type": "application/json" },
+fetch('http://your-website.com', {
+  method: 'post',
+  headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
-    key: "value"
+    key: 'value'
   })
-});
+})
 
 // Setting other content type
-zlFetch("http://your-website.com", {
-  method: "post",
-  headers: { "Content-Type": "application/x-www-form-urlencoded" }
-});
+zlFetch('http://your-website.com', {
+  method: 'post',
+  headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+})
 ```
 
 ### Other Content-Types
@@ -160,21 +160,21 @@ fetch("http://your-website.com", {
 If `Content-Type` is set to `application/x-www-form-urlencoded`, zlFetch will format `body` to be valid for `x-www-form-urlencoded`.
 
 ```js
-zlFetch("http://your-website.com", {
-  method: "post",
-  headers: { "Content-Type": "application/x-www-form-urlencoded" },
+zlFetch('http://your-website.com', {
+  method: 'post',
+  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
   body: {
-    key: "value",
-    web: "https://google.com"
+    key: 'value',
+    web: 'https://google.com'
   }
-});
+})
 
 // Resultant fetch api
-fetch("http://your-website.com", {
-  method: "post",
-  headers: { "Content-Type": "application/x-www-form-urlencoded" },
-  body: "key=value&web=https%3A%2F%2Fgoogle.com"
-});
+fetch('http://your-website.com', {
+  method: 'post',
+  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+  body: 'key=value&web=https%3A%2F%2Fgoogle.com'
+})
 ```
 
 ## Authentication/Authorization
@@ -205,20 +205,19 @@ fetch("http://your-website.com", {
 });
 ```
 
-
 ### Token/Bearer Authentication
 
 To perform token-based authentication, pass your token into `auth`.
 
 ```js
-zlFetch("http://your-website.com", {
-  auth: "token12345"
-});
+zlFetch('http://your-website.com', {
+  auth: 'token12345'
+})
 
 // Resultant fetch api
-fetch("http://your-website.com", {
+fetch('http://your-website.com', {
   headers: { Authorization: `Bearer token12345` }
-});
+})
 ```
 
 ## Shorhand methods
@@ -239,6 +238,15 @@ zlFetch.post('http://your-website.com')
 zlFetch('http://your-website.com', { method: 'post' })
 ```
 
-## Response Types
+## Handling other Response Types
 
-zlFetch supports only `json` and `text` response types for now. If you run into an error with a response type, file an issue and I'll support it asap. (This might take time though!)
+zlFetch only supports `json`,`blob`, and `text` response types at this point. (PRs welcome if you want to help zlFetch handle more response types!).
+
+If you want to handle a response not supported by zlFetch, you can pass `customResponseParser: true` into the options. This returns the response from a normal Fetch request without any additional treatments from zlFetch. You can then use `response.json()` or other methods as you deem fit.
+
+```js
+const response = await zlFetch('http://your-website.com', {
+  customResponseParser: true
+})
+const data = await response.arrayBuffer()
+```
