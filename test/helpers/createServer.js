@@ -1,5 +1,6 @@
 import bodyParser from 'body-parser'
 import express from 'express'
+import querystring from 'querystring'
 
 const app = express()
 
@@ -38,6 +39,16 @@ app.use('/text', (req, res) => {
 
 app.use('/text-error', (req, res) => {
   res.status(400).send('An error message')
+})
+
+// x-www-form-urlencoded
+app.use('/x-www-form-urlencoded', (req, res) => {
+  res.format({
+    'application/x-www-form-urlencoded' () {
+      const data = { message: 'Error message' }
+      res.send(querystring.encode(data))
+    }
+  })
 })
 
 // Forms

@@ -38,9 +38,24 @@ const formatOutput = (response, body) => {
     : Promise.reject(returnValue)
 }
 
-const parseResponse = (response, type) => {
+// TODO: Create test for formData format
+async function parseResponse (response, type) {
+  // Parse form data into JavaScript object
+  if (type === 'formData') {
+    let body = await response.text()
+    if (typeof URLSearchParams !== 'undefined') {
+      const query = new URLSearchParams(body)
+      body = Object.fromEntries(query)
+    } else {
+      const querystring = require('querystring')
+      body = querystring.parse(body)
+    }
+    return formatOutput(response, body)
+  }
+
   // We use bracket notation to allow multiple types to be parsed at the same time.
-  return response[type]().then(body => formatOutput(response, body))
+  const body = await response[type]()
+  return formatOutput(response, body)
 }
 
 export const handleResponse = (response, options) => {
@@ -57,6 +72,9 @@ export const handleResponse = (response, options) => {
   if (type.includes('json')) return parseResponse(response, 'json')
   if (type.includes('text')) return parseResponse(response, 'text')
   if (type.includes('image')) return parseResponse(response, 'blob')
+  if (type.includes('x-www-form-urlencoded')) {
+    return parseResponse(response, 'formData')
+  }
 
   // Need to check for FormData, Blob and ArrayBuffer content types
   throw new Error(`zlFetch does not support content-type ${type} yet`)

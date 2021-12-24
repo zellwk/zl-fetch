@@ -54,10 +54,6 @@ describe('Sending requests', () => {
 
     expect(response.body.message).toBe('good game')
   })
-
-  // TODO: Requires setting to multipart/form-data
-  // Or possibly leave empty... and let fetch do its job...?
-  it.todo('Sending FormData')
 })
 
 describe('Response Types', () => {
@@ -80,6 +76,12 @@ describe('Response Types', () => {
       expect(error.statusText).toBe('Bad Request')
       expect(error.body).toBe('An error message')
     }
+  })
+
+  it('Should handle x-www-urlencoded', async () => {
+    const response = await zlFetch(`${rootendpoint}/x-www-form-urlencoded
+`)
+    expect(response.body.message).toBe('Error message')
   })
 })
 
