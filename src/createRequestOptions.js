@@ -42,6 +42,8 @@ const setHeaders = ({ headers = {}, body, method = 'get', auth } = {}) => {
   return h
 }
 
+// We can make this simpler with URLSearchParams.
+// Refactor if have time.
 const queryStringify = params => {
   if (!params) return
   return Object.entries(params).reduce((acc, entry, index) => {
