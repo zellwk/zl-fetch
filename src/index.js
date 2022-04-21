@@ -7,8 +7,11 @@ if (typeof fetch === 'undefined') {
 }
 
 const zlFetch = (url, options) => {
-  const opts = createRequestOptions(Object.assign({ url }, options))
-  return fetch(opts.url, opts)
+  const requestOptions = createRequestOptions(Object.assign({ url }, options))
+
+  if (options.logRequestOptions) logRequestOptions(requestOptions)
+
+  return fetch(requestOptions.url, requestOptions)
     .then(response => handleResponse(response, options))
     .catch(handleError)
 }
@@ -23,6 +26,16 @@ for (const method of methods) {
     options = Object.assign({ method }, options)
     return zlFetch(url, options)
   }
+}
+
+function logRequestOptions (requestOptions) {
+  const clone = Object.assign({}, requestOptions)
+  const headers = {}
+  for (const [header, value] of clone.headers) {
+    headers[header] = value
+  }
+  clone.headers = headers
+  console.log('Request options:', clone)
 }
 
 export default zlFetch

@@ -92,5 +92,6 @@ export default (options = {}) => {
 
   // Removes options that are not native to Fetch
   delete opts.auth
+  delete opts.logRequestOptions
   return opts
 }

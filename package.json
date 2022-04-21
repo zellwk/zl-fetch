@@ -5,18 +5,11 @@
   "main": "dist/index-cjs.js",
   "module": "dist/index.mjs",
   "browser": "dist/index.js",
-  "files": [
-    "dist"
-  ],
-  "keywords": [
-    "fetch",
-    "javascript",
-    "browser",
-    "nodejs",
-    "ajax"
-  ],
+  "files": ["dist"],
+  "keywords": ["fetch", "javascript", "browser", "nodejs", "ajax"],
   "repository": "https://github.com/zellwk/zl-fetch",
   "scripts": {
+    "watch": "rollup -c --watch",
     "test": "jest",
     "test:watch": "jest --watch",
     "build": "rollup -c",
