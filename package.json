@@ -5,8 +5,16 @@
   "main": "dist/index-cjs.js",
   "module": "dist/index.mjs",
   "browser": "dist/index.js",
-  "files": ["dist"],
-  "keywords": ["fetch", "javascript", "browser", "nodejs", "ajax"],
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "fetch",
+    "javascript",
+    "browser",
+    "nodejs",
+    "ajax"
+  ],
   "repository": "https://github.com/zellwk/zl-fetch",
   "scripts": {
     "watch": "rollup -c --watch",
@@ -19,34 +27,34 @@
   "author": "Zell Liew <zellwk@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@babel/runtime": "^7.16.5",
+    "@babel/runtime": "^7.17.9",
     "btoa": "^1.2.1",
-    "cross-fetch": "^3.1.4",
-    "node-fetch": "^3.1.0"
+    "cross-fetch": "^3.1.5",
+    "node-fetch": "^3.2.3"
   },
   "devDependencies": {
-    "@babel/core": "^7.16.5",
-    "@babel/plugin-transform-runtime": "^7.16.5",
-    "@babel/preset-env": "^7.16.5",
+    "@babel/core": "^7.17.9",
+    "@babel/plugin-transform-runtime": "^7.17.0",
+    "@babel/preset-env": "^7.16.11",
     "@rollup/plugin-commonjs": "^11.0.2",
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^7.1.1",
-    "@types/jest": "^27.0.3",
-    "babel-jest": "^27.4.5",
-    "body-parser": "^1.19.1",
-    "express": "^4.17.2",
+    "@types/jest": "^27.4.1",
+    "babel-jest": "^27.5.1",
+    "body-parser": "^1.20.0",
+    "express": "^4.17.3",
     "form-data": "^4.0.0",
-    "jest": "^27.4.5",
-    "jest-extended": "^1.2.0",
-    "np": "^7.6.0",
+    "jest": "^27.5.1",
+    "jest-extended": "^2.0.0",
+    "np": "^7.6.1",
     "portastic": "^1.0.1",
     "rimraf": "^3.0.2",
-    "rollup": "^2.61.1",
+    "rollup": "^2.70.2",
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-node-builtins": "^2.1.2",
     "rollup-plugin-node-globals": "^1.4.0",
     "rollup-plugin-terser": "^7.0.2",
-    "standard": "^16.0.4",
-    "supertest": "^6.1.6"
+    "standard": "^17.0.0",
+    "supertest": "^6.2.2"
   }
 }
