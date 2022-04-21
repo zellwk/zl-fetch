@@ -240,7 +240,7 @@ zlFetch('url', { method: 'post' })
 
 ## Logging request options
 
-From v3.4.1 onwards, zlFetch supports logging request options. You can use it to debug your requests. zlFetch will log the request options into the console for you.
+From v3.5.0 onwards, zlFetch supports logging request options. You can use it to debug your requests. zlFetch will log the request options into the console for you.
 
 ```js
 zlFetch('url', {
