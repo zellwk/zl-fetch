@@ -68,7 +68,8 @@ export const handleResponse = (response, options) => {
   }
 
   const type = response.headers.get('content-type')
-
+  
+  if(!type) return formatOutput(response, null)
   if (type.includes('json')) return parseResponse(response, 'json')
   if (type.includes('text')) return parseResponse(response, 'text')
   if (type.includes('image')) return parseResponse(response, 'blob')
