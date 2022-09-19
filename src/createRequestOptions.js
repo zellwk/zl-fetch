@@ -1,45 +1,14 @@
 /* global Headers btoa */
-const setHeaders = ({ headers = {}, body, method = 'get', auth } = {}) => {
-  if (typeof Headers === 'undefined') {
-    require('cross-fetch/polyfill')
-  }
 
-  const h = new Headers(headers)
+export default function createRequestOptions (options = {}) {
+  let opts = Object.assign({}, options)
 
-  // Don't set any headers for preflight requests
-  if (method === 'options') return h
+  opts.url = setUrl(opts)
+  opts.method = setMethod(opts)
+  opts.headers = setHeaders(opts)
+  opts.body = setBody(opts)
 
-  // Default content type to 'application/json' for POST, PUT, PATCH, DELETE
-  if (!h.get('content-type') && method !== 'get') {
-    h.set('content-type', 'application/json')
-  }
-
-  if (auth) {
-    // Basic Auth
-    if (typeof auth === 'object') {
-      const { username, password } = auth
-      if (!username) {
-        throw new Error('Username required for basic authentication')
-      }
-      if (!password) {
-        throw new Error('Password required for basic authentication')
-      }
-
-      let encode
-      if (typeof window === 'object' && 'btoa' in window) {
-        encode = btoa
-      } else {
-        encode = require('btoa')
-      }
-
-      h.set('Authorization', 'Basic ' + encode(`${username}:${password}`))
-    } else {
-      // Bearer Auth
-      h.set('Authorization', `Bearer ${auth}`)
-    }
-  }
-
-  return h
+  return opts
 }
 
 // We can make this simpler with URLSearchParams.
@@ -60,40 +29,92 @@ const queryStringify = params => {
  * Appends queries to URL
  * @param {Object} opts
  */
-const createURL = opts => {
-  const { url, queries } = opts
-  if (!queries) return url
-  return `${url}?${queryStringify(queries)}`
+function setUrl (options) {
+  const { url, queries, query } = options
+
+  // Merge queries and query for easier use
+  // So users don't have to remember singluar or plural forms
+  const q = Object.assign({}, queries, query)
+
+  if (!q) return options.url
+
+  const searchParams = new URLSearchParams(q)
+  return `${url}?${searchParams.toString()}`
 }
 
-const formatBody = opts => {
-  const method = opts.method
+function setMethod (options) {
+  // Method set to GET by default unless otherwise specified
+  const method = options.method || 'get'
+  return method
+}
+
+function setHeaders (options) {
+  const fetchHeaders = options.fetch.Headers
+  const headers = new fetchHeaders(options.headers)
+
+  // For preflight requests, we don't want to set headers.
+  // This allows requests to remain simple.
+  if (options.method === 'options') return headers
+
+  // Set headers to Content-Type: application/json by default
+  // We set this only for POST, PUT, PATCH, DELETE so GET requests can remain simple.
+  if (headers.get('content-type') && options.method !== 'get') {
+    headers.set('content-type', 'application/json')
+  }
+
+  // Create Authorization Headers if the auth option is present
+  if (!options.auth) return headers
+
+  const { auth } = options.auth
+  const btoa = getBtoa()
+
+  // We help to create Basic Authentication when users pass in username and password fields. Note that Password field is optional for implicit grant.
+  if (typeof auth === 'object') {
+    const { username, password } = auth
+    if (!username) {
+      throw new Error(
+        'Please fill in your username to create an Authorization Header for Basic Authenication'
+      )
+    }
+    const encodedValue = btoa(`${username}:${password}`)
+    headers.set('Authorization', `Basic ${encodedValue}`)
+  }
+
+  // We help to create Bearer Authentication when the user passes in a token string to the `auth` option.
+  if (typeof auth === 'string') {
+    headers.set('Authorization', `Bearer ${auth}`)
+  }
+
+  return headers
+}
+
+function getBtoa () {
+  if (window?.btoa) return window.btoa
+  return function (string) {
+    Buffer.from(string).toString('base64')
+  }
+}
+
+function setBody (options) {
+  // If it is a GET request, we return an empty value because GET requests don't use the body property.
+  const method = options.method
   if (method === 'get') return
 
-  const contentType = opts.headers.get('content-type')
+  // If the content type is not specified, we ignore the body field so we can return a simple request for preflight checks
+  const contentType = options.headers.get('content-type')
   if (!contentType) return
 
+  // If the content type is x-www-form-urlencoded, we format the body with a query string.
   if (contentType.includes('x-www-form-urlencoded')) {
-    return queryStringify(opts.body)
+    const searchParams = new URLSearchParams(options.body)
+    return searchParams.toString()
   }
-  if (contentType.includes('json')) return JSON.stringify(opts.body)
 
-  return opts.body
-}
+  // If the content type is JSON, we stringify the body.
+  if (contentType.includes('json')) {
+    return JSON.stringify(options.body)
+  }
 
-// Defaults to GET method
-// Defaults content type to application/json
-// Creates authorization headers automatically
-export default (options = {}) => {
-  const opts = Object.assign({}, options)
-
-  opts.url = createURL(opts)
-  opts.method = opts.method || 'get'
-  opts.headers = setHeaders(opts)
-  opts.body = formatBody(opts)
-
-  // Removes options that are not native to Fetch
-  delete opts.auth
-  delete opts.logRequestOptions
-  return opts
+  // If the above conditions don't trigger, we return the body as is,  just in case.
+  return options.body
 }

@@ -1,8 +1,7 @@
-/* globals beforeEach afterEach describe expect it */
-import zlFetch from '../src/index'
-import app from './helpers/createServer'
-
-const portastic = require('portastic')
+import { beforeEach, afterEach, describe, expect, it } from 'vitest'
+import zlFetch from '../src/index.js'
+import app from './helpers/server.js'
+import portastic from 'portastic'
 
 let port
 let rootendpoint
@@ -19,7 +18,10 @@ afterEach(async () => {
   server.close()
 })
 
-describe('Sending requests', () => {
+// ========================
+// Integration Tests for zlFetch
+// ========================
+describe.skip('Sending requests', () => {
   it('Queries in GET requests', async () => {
     // Sends GET requests with queries
     const { response } = await zlFetch(`${rootendpoint}/queries`, {
@@ -56,7 +58,7 @@ describe('Sending requests', () => {
   })
 })
 
-describe('Response Types', () => {
+describe.skip('When receiving responses: ', () => {
   it('should handle JSON response', async () => {
     // Should handle JSON
     const response = await zlFetch(`${rootendpoint}/json`)
@@ -68,6 +70,11 @@ describe('Response Types', () => {
     expect(response.body).toBe('A paragraph of text')
   })
 
+  it('Should handle x-www-urlencoded', async () => {
+    const response = await zlFetch(`${rootendpoint}/x-www-form-urlencoded`)
+    expect(response.body.message).toBe('Error message')
+  })
+
   it('Should throw if JSON error', async () => {
     try {
       await zlFetch(`${rootendpoint}/text-error`)
@@ -77,15 +84,9 @@ describe('Response Types', () => {
       expect(error.body).toBe('An error message')
     }
   })
-
-  it('Should handle x-www-urlencoded', async () => {
-    const response = await zlFetch(`${rootendpoint}/x-www-form-urlencoded
-`)
-    expect(response.body.message).toBe('Error message')
-  })
 })
 
-it('Test sending to Github', async () => {
+it.skip('Test sending to Github', async () => {
   const response = await zlFetch('https://api.github.com/users/zellwk/repos')
   expect(response.body.length === 30)
 })

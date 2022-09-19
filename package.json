@@ -2,11 +2,9 @@
   "name": "zl-fetch",
   "version": "3.4.0",
   "description": "A library that makes the Fetch API a breeze",
-  "main": "dist/index-cjs.js",
-  "module": "dist/index.mjs",
-  "browser": "dist/index.js",
+  "main": "src/index.js",
   "files": [
-    "dist"
+    "src"
   ],
   "keywords": [
     "fetch",
@@ -17,44 +15,28 @@
   ],
   "repository": "https://github.com/zellwk/zl-fetch",
   "scripts": {
-    "watch": "rollup -c --watch",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "build": "rollup -c",
-    "prepublish": "npm run test && npm run build",
+    "test": "vitest",
     "release": "np --no-publish && npm publish"
   },
   "author": "Zell Liew <zellwk@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@babel/runtime": "^7.17.9",
     "btoa": "^1.2.1",
     "cross-fetch": "^3.1.5",
-    "node-fetch": "^3.2.3"
+    "node-fetch": "^3.2.10"
   },
   "devDependencies": {
-    "@babel/core": "^7.17.9",
-    "@babel/plugin-transform-runtime": "^7.17.0",
-    "@babel/preset-env": "^7.16.11",
-    "@rollup/plugin-commonjs": "^11.0.2",
-    "@rollup/plugin-json": "^4.1.0",
-    "@rollup/plugin-node-resolve": "^7.1.1",
-    "@types/jest": "^27.4.1",
-    "babel-jest": "^27.5.1",
     "body-parser": "^1.20.0",
-    "express": "^4.17.3",
+    "express": "^4.18.1",
     "form-data": "^4.0.0",
-    "jest": "^27.5.1",
-    "jest-extended": "^2.0.0",
-    "np": "^7.6.1",
+    "happy-dom": "^6.0.4",
+    "np": "^7.6.2",
     "portastic": "^1.0.1",
     "rimraf": "^3.0.2",
-    "rollup": "^2.70.2",
-    "rollup-plugin-babel": "^4.4.0",
-    "rollup-plugin-node-builtins": "^2.1.2",
-    "rollup-plugin-node-globals": "^1.4.0",
-    "rollup-plugin-terser": "^7.0.2",
+    "rollup": "^2.79.0",
     "standard": "^17.0.0",
-    "supertest": "^6.2.2"
+    "supertest": "^6.2.4",
+    "vite": "^3.1.3",
+    "vitest": "^0.23.4"
   }
 }

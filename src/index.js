@@ -1,17 +1,55 @@
 /* globals fetch */
-import createRequestOptions from './createRequestOptions'
-import { handleResponse, handleError } from './handleResponse'
+import createRequestOptions from './createRequestOptions.js'
+import { handleResponse, handleError } from './handleResponse.js'
 
-if (typeof fetch === 'undefined') {
-  require('cross-fetch/polyfill')
+export default function zlFetch (url, options) {
+  return fetchInstance({ url, ...options })
 }
 
-const zlFetch = (url, options) => {
-  const requestOptions = createRequestOptions(Object.assign({ url }, options))
+/**
+ * Main zlFetch Function
+ * @param {string} url - endpoint
+ * @param {object} options - zlFetch options
+ * @param {string} options.method - HTTP method
+ * @param {object} options.headers - HTTP headers
+ * @param {object} options.body - Body content
+ * @param {string} options.auth - Authentication information
+ * @param {string} options.logRequestOptions - Logs the request options for debbuging
+ * @param {string} options.autoReject - Automatically rejects the promise if the response is not ok
+ */
 
-  if (options?.logRequestOptions) logRequestOptions(requestOptions)
+// Normalizes between Browser and Node Fetch
+export async function getFetch () {
+  if (typeof fetch === 'undefined') {
+    const f = await import('node-fetch')
+    return {
+      fetch: f.default,
+      Headers: f.Headers,
+      Request: f.Request
+    }
+  } else {
+    return {
+      fetch,
+      Headers,
+      Request
+    }
+  }
+}
 
-  return fetch(requestOptions.url, requestOptions)
+async function fetchInstance (options) {
+  const fetch = await getFetch()
+  const requestOptions = createRequestOptions({ ...options, fetch })
+
+  // Remove options that are not native to a fetch request
+  delete requestOptions.fetch
+  delete requestOptions.auth
+  delete requestOptions.logRequestOptions
+  delete requestOptions.debug
+  delete requestOptions.autoReject
+
+  // Performs the fetch request
+  return fetch
+    .fetch(requestOptions.url, requestOptions)
     .then(response => handleResponse(response, options))
     .catch(handleError)
 }
@@ -27,15 +65,23 @@ for (const method of methods) {
     return zlFetch(url, options)
   }
 }
+// function zlFetch (url, options) {
+//   const requestOptions = createRequestOptions(Object.assign({ url }, options))
 
-function logRequestOptions (requestOptions) {
-  const clone = Object.assign({}, requestOptions)
-  const headers = {}
-  for (const [header, value] of clone.headers) {
-    headers[header] = value
-  }
-  clone.headers = headers
-  console.log('Request options:', clone)
-}
+//   if (options?.logRequestOptions) logRequestOptions(requestOptions)
 
-export default zlFetch
+//   return fetch(requestOptions.url, requestOptions)
+//     .then(response => handleResponse(response, options))
+//     .catch(handleError)
+// }
+
+// function logRequestOptions (requestOptions) {
+//   const clone = Object.assign({}, requestOptions)
+//   const headers = {}
+//   for (const [header, value] of clone.headers) {
+//     headers[header] = value
+//   }
+//   clone.headers = headers
+// }
+
+// export default zlFetch
