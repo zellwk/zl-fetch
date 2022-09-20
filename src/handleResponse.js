@@ -39,16 +39,10 @@ function getResponseType (type) {
 
 async function parseResponse (response, options) {
   // Parse formData into JavaScript object
-  // TODO: Create test for formData format
   if (options.type === 'formData') {
     let body = await response.text()
-    if (typeof URLSearchParams !== 'undefined') {
-      const query = new URLSearchParams(body)
-      body = Object.fromEntries(query)
-    } else {
-      const querystring = require('querystring')
-      body = querystring.parse(body)
-    }
+    const query = new URLSearchParams(body)
+    body = Object.fromEntries(query)
 
     return createOutput({ response, body, options })
   }
