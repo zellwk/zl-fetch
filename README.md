@@ -1,71 +1,217 @@
-<!-- Breaking Changes -->
-<!-- 1. params -> queries -->
-<!-- 2. Authorization -->
-<!-- 3. No need to require btoa anymore -->
-<!-- 4. Shorthands -->
-
 # zlFetch
 
-<!-- [![](https://data.jsdelivr.com/v1/package/npm/zl-fetch/badge)](https://www.jsdelivr.com/package/npm/zl-fetch) -->
+zlFetch is a wrapper around fetch that provides you with a convenient way to may requests.
 
-## Features
+It's features are as follows:
 
-1. zlFetch helps you create your request. It helps you:
-   1. Create query parameters for GET requests
-   2. Do Basic and Bearer-type authorization
-   3. Formats `body` for JSON or `x-www-form-urlencoded`
-2. zlFetch transforms the response:
-   1. It lets you use your responses in the first `then` method.
-   2. It directs 400 and 500 errors into `catch`.
+- [zlFetch](#zlfetch)
+  - [Installing zlFetch](#installing-zlfetch)
+  - [Quick Start](#quick-start)
+    - [Contains all data about the response](#contains-all-data-about-the-response)
+    - [Debugging the request](#debugging-the-request)
+    - [Shorthand methods for GET, POST, PUT, PATCH, and DELETE](#shorthand-methods-for-get-post-put-patch-and-delete)
+  - [Features that help you write less code](#features-that-help-you-write-less-code)
+    - [Automatic Generation of Query Strings](#automatic-generation-of-query-strings)
+    - [Automatic Content-Type Generation and Body Formatting](#automatic-content-type-generation-and-body-formatting)
+    - [Automatic Authorization Header Generation](#automatic-authorization-header-generation)
+  - [Error Handling](#error-handling)
+  - [Handling other Response Types](#handling-other-response-types)
 
-## Download/install
+Note: From `v4.0.0` onwards, zlFetch is a ESM library. It cannot be used with CommonJS anymore.
 
-You can install zlFetch through npm.
+## Installing zlFetch
 
-```
+You can install zlFetch through npm:
+
+```bash
 # Installing through npm
 npm install zl-fetch --save
 ```
 
-If you want to use zlFetch in your browser, download [`dist/index.min.js`](https://www.jsdelivr.com/package/npm/zl-fetch) or use the CDN link below:
+Then you can use it by importing it in your JavaScript file. It works for both browsers and Node.
+
+```js
+import zlFetch from 'zl-fetch'
+```
+
+Using `zlFetch` without `npm`:
+
+You can use `zlFetch` without `npm` by importing it directly to your HTML file. To do this, you first need to set your `script`'s type to `module`, then import `zlFetch` from a CDN jsdelivr.
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/zl-fetch"></script>
+<script type="module">
+  import zlFetch from 'https://www.jsdelivr.com/package/npm/zl-fetch'
+</script>
 ```
 
 ## Quick Start
 
-### Basic usage (in Browser)
+You can use zlFetch just like a normal `fetch` function. The only difference is you don't have to write a `response.json` or `response.text` method anymore!
+
+zlFetch handles it for you automatically so you can go straight to using your response.
 
 ```js
-// Basic usage
 zlFetch('url')
   .then(response => console.log(response))
   .catch(error => console.log(error))
 ```
 
-You can use import zlFetch the ES6 way if you wish to:
+### Contains all data about the response
+
+zlFetch sends you all the data you need in the `response` object. This includes the following:
+
+- `headers`: response headers
+- `body`: response body
+- `status`: response status
+- `statusText`: response status text
+- `response`: original response from Fetch
+
+### Debugging the request
+
+New in `v4.0.0`: You can debug the request object by adding a `debug` option. This will reveal a `debug` object that contains the request being constructed.
+
+- url
+- method
+- headers
+- body
 
 ```js
-// ES6 imports
-import zlFetch from 'zl-fetch'
-zlFetch('url')
-  .then(response => console.log(response))
-  .catch(error => console.log(error))
+zlFetch('url', { debug: true })
+  .then({ debug } => console.log(debug))
 ```
 
-### Basic usage (in Node)
+Note: The `logRequestOptions` option is replaced by the `debug` object in `v4.0.0`. The `logRequestOptions` option is no longer available.
 
-You use it the same way you expect to with browsers!
+### Shorthand methods for GET, POST, PUT, PATCH, and DELETE
+
+zlFetch contains shorthand methods for these common REST methods so you can use them quickly.
 
 ```js
-const zlFetch = require('zl-fetch')
-zlFetch('url')
-  .then(response => console.log(response))
-  .catch(error => console.log(error))
+zlFetch.get(/* some-url */)
+zlFetch.post(/* some-url */)
+zlFetch.put(/* some-url */)
+zlFetch.patch(/* some-url */)
+zlFetch.delete(/* some-url */)
 ```
 
-## Response and Error objects
+## Features that help you write less code
+
+### Automatic Generation of Query Strings
+
+You can add `query` or `queries` as an option and zlFetch will create a query string for you automatically.:
+
+```js
+zlFetch('some-url', {
+  queries: {
+    param1: 'value1',
+    param2: 'to encode'
+  }
+})
+
+// The above request can be written in Fetch like this:
+fetch('url?param1=value1&param2=to%20encode')
+```
+
+### Automatic Content-Type Generation and Body Formatting
+
+zlFetch sets `Content-Type` to `application/json` for you automatically if your `method` is `POST`, `PUT`, or `PATCH`.
+
+It will also help you `JSON.stringify` your body so you don't have to do it yourself.
+
+```js
+zlFetch.post('some-url', {
+  body: { message: 'Good game' }
+})
+
+// The request above can be written in Fetch like this:
+fetch('some-url', {
+  method: 'post',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ message: 'Good game' })
+})
+```
+
+You can manually set your `Content-Type` to other values and zlFetch will honour the value you set.
+
+If you set `Content-Type` to `application/x-www-form-urlencoded`, zlFetch will automatically format your body to `x-www-form-urlencoded` for you.
+
+```js
+zlFetch.post('some-url', {
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded'
+  },
+  body: { message: 'Good game' }
+})
+
+// The request above can be written in Fetch like this:
+fetch('some-url', {
+  method: 'post',
+  body: 'message=Good+game'
+})
+```
+
+### Automatic Authorization Header Generation
+
+If you provide zlFetch with an `auth` property, it will generate an Authorization Header for you.
+
+If you pass in a `string` (commonly for tokens) , it will generate a Bearer Auth.
+
+```js
+zlFetch('some-url', { auth: 'token12345' })
+
+// The above request can be written in Fetch like this:
+fetch('some-url', {
+  headers: { Authorization: `Bearer token12345` }
+})
+```
+
+If you pass in an `object`, zlFetch will generate a Basic Auth for you.
+
+```js
+zlFetch('some-url', {
+  auth: {
+    username: 'username'
+    password: '12345678'
+  }
+})
+
+// The above request can be written in Fetch like this:
+fetch('some-url', {
+  headers: { Authorization: `Basic ${btoa('username:12345678')}` }
+});
+```
+
+## Error Handling
+
+zlFetch directs all 400 and 500 errors to the `catch` method. Errors contain the same information as a response.
+
+- `headers`: response headers
+- `body`: response body
+- `status`: response status
+- `statusText`: response status text
+- `response`: original response from fetch
+
+This makes is zlFetch super easy to use with promises.
+
+```js
+zlFetch('some-url')
+  .catch(error => { /* Handle error */})
+
+// The above request can be written in Fetch like this:
+fetch('some-url')
+  .then(response => {
+    if (!response.ok) {
+      Promise.reject(response.json)
+    }
+  })
+  .catch(error => { /* Handle error */})
+```
+
+zlFetch also gives you the option to pass all errors into an `errors` object instead of handling them in `catch`. This option is very much preferred when you don't your errors to be passed into a catch method. (Very useful when used in servers).
+
+```js
+const {response, error} = await zlFetch('some-url')
+```
 
 `zlFetch` changes the response and error objects. In zlFetch, `response` and `error` objects both include these five properties:
 
@@ -73,7 +219,7 @@ zlFetch('url')
 2. `body`: response body
 3. `status`: response status
 4. `statusText`: response status text
-5. `response`: original response from Fetch
+5. `response`: original response from fetch
 
 ```js
 zlFetch('url')
@@ -86,167 +232,6 @@ zlFetch('url')
     const body = error.body
     const status = error.status
   })
-```
-
-## `GET` requests
-
-To send a `GET` request, enter the endpoint as the first argument.
-
-```js
-// With zlFetch
-zlFetch('url')
-
-// With fetch api
-fetch('url')
-```
-
-zlFetch formats and encodes query parameters for you if you provide a `queries` option.
-
-```js
-zlFetch('url', {
-  queries: {
-    param1: 'value1',
-    param2: 'to encode'
-  }
-})
-
-// With fetch API
-fetch('url?param1=value1&param2=to%20encode')
-```
-
-## `POST` requests
-
-Set `method` to `post` to send a post request. zlFetch will set `Content-Type` will be set to `application/json` for you. It will also convert your `body` to a JSON string automatically.
-
-```js
-// with zlFetch
-zlFetch('url', {
-  method: 'post',
-  body: {
-    key: 'value'
-  }
-})
-
-// Resultant fetch api
-fetch('url', {
-  method: 'post',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    key: 'value'
-  })
-})
-
-// Setting other content type
-zlFetch('url', {
-  method: 'post',
-  headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-})
-```
-
-### Other Content-Types
-
-You may choose to overwrite `Content-Type` yourself. To do so, pass `headers` and `Content-Type` property.
-
-```js
-fetch("url", {
-  method: "post",
-  headers: { "Content-Type": "Another Content Type" },
-  body: {
-    key: "value"
-  )
-});
-```
-
-If `Content-Type` is set to `application/x-www-form-urlencoded`, zlFetch will format `body` to be valid for `x-www-form-urlencoded`.
-
-```js
-zlFetch('url', {
-  method: 'post',
-  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-  body: {
-    key: 'value',
-    web: 'https://google.com'
-  }
-})
-
-// Resultant fetch api
-fetch('url', {
-  method: 'post',
-  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-  body: 'key=value&web=https%3A%2F%2Fgoogle.com'
-})
-```
-
-## Authentication/Authorization
-
-zlFetch adds `Authorization` headers for you if you include an `auth` property.
-
-```js
-zlFetch("url", {
-  auth: /* Your credentials */
-})
-```
-
-### Basic Authentication
-
-To perform basic authentication, pass `username` and `password` into `auth`.
-
-```js
-zlFetch("url", {
-  auth: {
-    username: 'your-username'
-    password: 'your-password'
-  }
-})
-
-// Resultant fetch api
-fetch("url", {
-  headers: { Authorization: `Basic ${btoa("yourusername:12345678")}` }
-});
-```
-
-### Token/Bearer Authentication
-
-To perform token-based authentication, pass your token into `auth`.
-
-```js
-zlFetch('url', {
-  auth: 'token12345'
-})
-
-// Resultant fetch api
-fetch('url', {
-  headers: { Authorization: `Bearer token12345` }
-})
-```
-
-## Shorhand methods
-
-From `v3.0` onwards, zlFetch supports method shorthands.
-
-Supported shorthand methods include:
-
-1. `get`
-2. `post`
-3. `put`
-4. `patch`
-5. `delete`
-
-```js
-// These two are the same
-zlFetch.post('url')
-zlFetch('url', { method: 'post' })
-```
-
-## Logging request options
-
-From v3.5.0 onwards, zlFetch supports logging request options. You can use it to debug your requests. zlFetch will log the request options into the console for you.
-
-```js
-zlFetch('url', {
-  // ...
-  logRequestOptions: true
-})
 ```
 
 ## Handling other Response Types
