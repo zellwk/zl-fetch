@@ -1,7 +1,7 @@
 {
   "name": "zl-fetch",
   "version": "3.4.0",
-  "description": "A library that makes the Fetch API a breeze",
+  "description": "A library that makes the Fetch API easy to use",
   "main": "src/index.js",
   "files": ["src"],
   "keywords": ["fetch", "javascript", "browser", "nodejs", "ajax"],
