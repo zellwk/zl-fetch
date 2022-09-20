@@ -8,8 +8,9 @@
   "keywords": ["fetch", "javascript", "browser", "nodejs", "ajax"],
   "repository": "https://github.com/zellwk/zl-fetch",
   "scripts": {
-    "test": "vitest",
-    "test:watch": "vitest --ui",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
     "release": "np --no-publish && npm publish"
   },
   "author": "Zell Liew <zellwk@gmail.com>",
