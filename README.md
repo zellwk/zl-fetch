@@ -39,7 +39,7 @@ You can use `zlFetch` without `npm` by importing it directly to your HTML file. 
 
 ```html
 <script type="module">
-  import zlFetch from 'https://cdn.jsdelivr.net/npm/zl-fetch@4.0.0/src/index.js'
+  import zlFetch from 'https://cdn.jsdelivr.net/npm/zl-fetch@4.0.1/src/index.js'
 </script>
 ```
 
