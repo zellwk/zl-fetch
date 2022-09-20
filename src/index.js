@@ -58,14 +58,12 @@ export async function getFetch () {
     const f = await import('node-fetch')
     return {
       fetch: f.default,
-      Headers: f.Headers,
-      Request: f.Request
+      Headers: f.Headers
     }
   } else {
     return {
-      fetch,
-      Headers,
-      Request
+      fetch: window.fetch.bind(window),
+      Headers: window.Headers
     }
   }
 }

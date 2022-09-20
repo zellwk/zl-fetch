@@ -96,7 +96,7 @@ export default function tests (environment) {
       expect(error.body.message).toBe('An error message')
     })
 
-    it(`Returns Error`, async ({ endpoint }) => {
+    it('Returns Error', async ({ endpoint }) => {
       const { response, error } = await zlFetch(`${endpoint}/json-error`, {
         returnError: true
       })
@@ -228,7 +228,7 @@ export default function tests (environment) {
         auth: '12345'
       })
       const authHeader = debug.headers.authorization
-      expect(authHeader).toBe(`Bearer 12345`)
+      expect(authHeader).toBe('Bearer 12345')
     })
   })
 }
