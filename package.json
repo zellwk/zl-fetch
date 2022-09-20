@@ -4,16 +4,8 @@
   "description": "A library that makes the Fetch API easy to use",
   "main": "src/index.js",
   "type": "module",
-  "files": [
-    "src"
-  ],
-  "keywords": [
-    "fetch",
-    "javascript",
-    "browser",
-    "nodejs",
-    "ajax"
-  ],
+  "files": ["src"],
+  "keywords": ["fetch", "javascript", "browser", "nodejs", "ajax"],
   "repository": "https://github.com/zellwk/zl-fetch",
   "scripts": {
     "test": "vitest run",
