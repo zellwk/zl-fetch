@@ -16,20 +16,6 @@ It's features are as follows:
 - [Easier error handling](#error-handling) when you use promises — all 400 and 500 errors are automatically directed to the `catch` block which is aligned with how promises work!
 - You can also choose to [return errors as an error object](#error-handling) in the `then` block — this is super useful in a Node context when you want to check for errors before doing something else!
 
-<!-- no toc -->
-- [zlFetch](#zlfetch)
-  - [Installing zlFetch](#installing-zlfetch)
-  - [Quick Start](#quick-start)
-    - [Contains all data about the response](#contains-all-data-about-the-response)
-    - [Debugging the request](#debugging-the-request)
-    - [Shorthand methods for GET, POST, PUT, PATCH, and DELETE](#shorthand-methods-for-get-post-put-patch-and-delete)
-  - [Features that help you write less code](#features-that-help-you-write-less-code)
-    - [Automatic Generation of Query Strings](#automatic-generation-of-query-strings)
-    - [Automatic Content-Type Generation and Body Formatting](#automatic-content-type-generation-and-body-formatting)
-    - [Automatic Authorization Header Generation](#automatic-authorization-header-generation)
-  - [Error Handling](#error-handling)
-  - [Handling other Response Types](#handling-other-response-types)
-
 Note: From `v4.0.0` onwards, zlFetch is a ESM library. It cannot be used with CommonJS anymore.
 
 ## Installing zlFetch
