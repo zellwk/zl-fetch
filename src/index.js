@@ -31,7 +31,6 @@ for (const method of methods) {
 // ========================
 // Internal Functions
 // ========================
-
 async function fetchInstance (options) {
   const fetch = await getFetch()
   const requestOptions = createRequestOptions({ ...options, fetch })
@@ -46,11 +45,15 @@ async function fetchInstance (options) {
   return fetch
     .fetch(requestOptions.url, requestOptions)
     .then(response => handleResponse(response, options))
+    .then(response => {
+      if (!options.debug) return response
+      return { ...response, debug: debugHeaders(requestOptions) }
+    })
     .catch(handleError)
 }
 
 // Normalizes between Browser and Node Fetch
-async function getFetch () {
+export async function getFetch () {
   if (typeof fetch === 'undefined') {
     const f = await import('node-fetch')
     return {
@@ -67,23 +70,12 @@ async function getFetch () {
   }
 }
 
-// function zlFetch (url, options) {
-//   const requestOptions = createRequestOptions(Object.assign({ url }, options))
-
-//   if (options?.logRequestOptions) logRequestOptions(requestOptions)
-
-//   return fetch(requestOptions.url, requestOptions)
-//     .then(response => handleResponse(response, options))
-//     .catch(handleError)
-// }
-
-// function logRequestOptions (requestOptions) {
-//   const clone = Object.assign({}, requestOptions)
-//   const headers = {}
-//   for (const [header, value] of clone.headers) {
-//     headers[header] = value
-//   }
-//   clone.headers = headers
-// }
-
-// export default zlFetch
+function debugHeaders (requestOptions) {
+  const clone = Object.assign({}, requestOptions)
+  const headers = {}
+  for (const [header, value] of clone.headers) {
+    headers[header] = value
+  }
+  clone.headers = headers
+  return clone
+}

@@ -1,5 +1,3 @@
-/* global Headers btoa */
-
 export default function createRequestOptions (options = {}) {
   let opts = Object.assign({}, options)
 
@@ -59,33 +57,38 @@ function setHeaders (options) {
   // Create Authorization Headers if the auth option is present
   if (!options.auth) return headers
 
-  const { auth } = options.auth
+  const { auth } = options
   const btoa = getBtoa()
 
-  // We help to create Basic Authentication when users pass in username and password fields. Note that Password field is optional for implicit grant.
+  // We help to create Basic Authentication when users pass in username and password fields.
   if (typeof auth === 'object') {
-    const { username, password } = auth
+    let { username, password } = auth
     if (!username) {
       throw new Error(
-        'Please fill in your username to create an Authorization Header for Basic Authenication'
+        'Please fill in your username to create an Authorization Header for Basic Authentication'
       )
     }
+
+    // Password field can be empty for implicit grant
+    if (!password) password = ''
+
     const encodedValue = btoa(`${username}:${password}`)
     headers.set('Authorization', `Basic ${encodedValue}`)
-  }
-
-  // We help to create Bearer Authentication when the user passes in a token string to the `auth` option.
-  if (typeof auth === 'string') {
+  } else {
+    // We help to create Bearer Authentication when the user passes a token into the `auth` option.
     headers.set('Authorization', `Bearer ${auth}`)
   }
 
   return headers
 }
 
-function getBtoa () {
-  if (window?.btoa) return window.btoa
+export function getBtoa () {
+  if (typeof window !== 'undefined' && window.btoa) {
+    return window.btoa
+  }
+
   return function (string) {
-    Buffer.from(string).toString('base64')
+    return Buffer.from(string).toString('base64')
   }
 }
 
