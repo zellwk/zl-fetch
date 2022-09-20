@@ -1,22 +1,13 @@
 export function handleResponse (response, options) {
   // Lets user use custom response parser because some people want to do so.
   // See https://github.com/zellwk/zl-fetch/issues/2
-  if (options && 'customResponseParser' in options) {
+  if (options?.customResponseParser) {
     return response
   }
 
-  const type = response.headers.get('content-type')
-
-  if (!type) return formatOutput(response, null) // Handles 204 No Content
-  if (type.includes('json')) return parseResponse(response, 'json')
-  if (type.includes('text')) return parseResponse(response, 'text')
-  if (type.includes('image')) return parseResponse(response, 'blob')
-  if (type.includes('x-www-form-urlencoded')) {
-    return parseResponse(response, 'formData')
-  }
-
-  // Need to check for FormData, Blob and ArrayBuffer content types
-  throw new Error(`zlFetch does not support content-type ${type} yet`)
+  const contentType = response.headers.get('content-type')
+  const type = getResponseType(contentType)
+  return parseResponse(response, { ...options, type })
 }
 
 /**
@@ -35,10 +26,21 @@ export function handleError (error) {
 // ========================
 // Internal Functions
 // ========================
-async function parseResponse (response, type) {
-  // Parse form data into JavaScript object
+function getResponseType (type) {
+  if (!type) return null // Handles 204 No Content
+  if (type.includes('json')) return 'json'
+  if (type.includes('text')) return 'text'
+  if (type.includes('blob')) return 'blob'
+  if (type.includes('x-www-form-urlencoded')) return 'formData'
+
+  // Need to check for FormData, Blob and ArrayBuffer content types
+  throw new Error(`zlFetch does not support content-type ${type} yet`)
+}
+
+async function parseResponse (response, options) {
+  // Parse formData into JavaScript object
   // TODO: Create test for formData format
-  if (type === 'formData') {
+  if (options.type === 'formData') {
     let body = await response.text()
     if (typeof URLSearchParams !== 'undefined') {
       const query = new URLSearchParams(body)
@@ -47,15 +49,16 @@ async function parseResponse (response, type) {
       const querystring = require('querystring')
       body = querystring.parse(body)
     }
-    return formatOutput(response, body)
+
+    return createOutput({ response, body, options })
   }
 
   // We use bracket notation to allow multiple types to be parsed at the same time.
-  const body = await response[type]()
-  return formatOutput(response, body)
+  const body = await response[options.type]()
+  return createOutput({ response, body, options })
 }
 
-function formatOutput (response, body) {
+function createOutput ({ response, body, options }) {
   const headers = getHeaders(response)
   const returnValue = {
     body,
@@ -65,9 +68,32 @@ function formatOutput (response, body) {
     statusText: response.statusText
   }
 
-  return response.ok
-    ? Promise.resolve(returnValue)
-    : Promise.reject(returnValue)
+  // Resolves if successful response
+  // Rejects if unsuccessful response
+  if (!options.returnError) {
+    return response.ok
+      ? Promise.resolve(returnValue)
+      : Promise.reject(returnValue)
+  }
+
+  // Returns both successful and unsuccessful response
+  if (options.returnError) {
+    let data
+    let error
+
+    if (response.ok) {
+      data = returnValue
+      error = null
+    } else {
+      data = null
+      error = returnValue
+    }
+
+    return Promise.resolve({
+      response: data,
+      error
+    })
+  }
 }
 
 function getHeaders (response) {

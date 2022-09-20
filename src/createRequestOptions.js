@@ -11,20 +11,6 @@ export default function createRequestOptions (options = {}) {
   return opts
 }
 
-// We can make this simpler with URLSearchParams.
-// Refactor if have time.
-const queryStringify = params => {
-  if (!params) return
-  return Object.entries(params).reduce((acc, entry, index) => {
-    const [param, value] = entry
-    const encoded =
-      index === 0
-        ? `${param}=${encodeURIComponent(value)}`
-        : `&${param}=${encodeURIComponent(value)}`
-    return `${acc}${encoded}`
-  }, '')
-}
-
 /**
  * Appends queries to URL
  * @param {Object} opts
@@ -36,10 +22,18 @@ function setUrl (options) {
   // So users don't have to remember singluar or plural forms
   const q = Object.assign({}, queries, query)
 
-  if (!q) return options.url
+  if (isEmptyObject(q)) return options.url
 
   const searchParams = new URLSearchParams(q)
   return `${url}?${searchParams.toString()}`
+}
+
+function isEmptyObject (obj) {
+  return (
+    obj && // 👈 null and undefined check
+    Object.keys(obj).length === 0 &&
+    Object.getPrototypeOf(obj) === Object.prototype
+  )
 }
 
 function setMethod (options) {
@@ -58,7 +52,7 @@ function setHeaders (options) {
 
   // Set headers to Content-Type: application/json by default
   // We set this only for POST, PUT, PATCH, DELETE so GET requests can remain simple.
-  if (headers.get('content-type') && options.method !== 'get') {
+  if (!headers.get('content-type') && options.method !== 'get') {
     headers.set('content-type', 'application/json')
   }
 
