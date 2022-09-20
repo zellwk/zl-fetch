@@ -1,5 +1,5 @@
 export default function createRequestOptions (options = {}) {
-  let opts = Object.assign({}, options)
+  const opts = Object.assign({}, options)
 
   opts.url = setUrl(opts)
   opts.method = setMethod(opts)
