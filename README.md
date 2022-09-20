@@ -4,6 +4,19 @@ zlFetch is a wrapper around fetch that provides you with a convenient way to may
 
 It's features are as follows:
 
+- You can [use the response right away](#quick-start) without calling an extra `.then`, or `response.json()`, or `response.text()`
+- It [returns everything you need](#contains-all-data-about-the-response) to know about a response in one object — headers, body, status... everything!
+- You can [debug your request](#debugging-the-request) — and see what url, headers, and body you send — without looking into the Network panel... this saves so much time debugging requests!
+- There are shorthand methods GET, POST, PUT, PATCH, and DELETE methods, meaning faster access to the most common HTTP methods.
+- This package [generates query strings for you automatically](#automatic-generation-of-query-strings) so you don't have to worry about URLSearchParam stuff. Just pass in an object!
+- The [`Content-Type` is set to `application/json` for you automatically](#automatic-content-type-generation-and-body-formatting) if you use a POST, PUT, PATCH, request — no need to write `application/json` yourself which saves lots of time (and wrist power)!
+- You always [override the `Content-Type` header](#automatic-content-type-generation-and-body-formatting) if you need to!
+- [Your body data is gets formatted a JSON or form data for you automatically](#automatic-content-type-generation-and-body-formatting) when Content Type is `application/json` or `application/x-www-form-urlencoded`.
+- [No need to write Authorization Headers yourself](#automatic-authorization-header-generation) — zlFetch takes care of both Basic and Bearer Authorization Headres as long as you pass in an `auth` property.
+- [Easier error handling](#error-handling) when you use promises — all 400 and 500 errors are automatically directed to the `catch` block which is aligned with how promises work!
+- You can also choose to [return errors as an error object](#error-handling) in the `then` block — this is super useful in a Node context when you want to check for errors before doing something else!
+
+<!-- no toc -->
 - [zlFetch](#zlfetch)
   - [Installing zlFetch](#installing-zlfetch)
   - [Quick Start](#quick-start)
