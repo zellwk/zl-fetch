@@ -1,6 +1,6 @@
 # zlFetch
 
-zlFetch is a wrapper around fetch that provides you with a convenient way to may requests.
+zlFetch is a wrapper around fetch that provides you with a convenient way to make requests.
 
 It's features are as follows:
 
