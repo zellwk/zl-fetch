@@ -103,8 +103,8 @@ You can add `query` or `queries` as an option and zlFetch will create a query st
 zlFetch('some-url', {
   queries: {
     param1: 'value1',
-    param2: 'to encode'
-  }
+    param2: 'to encode',
+  },
 })
 
 // The above request can be written in Fetch like this:
@@ -119,14 +119,14 @@ It will also help you `JSON.stringify` your body so you don't have to do it your
 
 ```js
 zlFetch.post('some-url', {
-  body: { message: 'Good game' }
+  body: { message: 'Good game' },
 })
 
 // The request above can be written in Fetch like this:
 fetch('some-url', {
   method: 'post',
   headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ message: 'Good game' })
+  body: JSON.stringify({ message: 'Good game' }),
 })
 ```
 
@@ -137,15 +137,15 @@ If you set `Content-Type` to `application/x-www-form-urlencoded`, zlFetch will a
 ```js
 zlFetch.post('some-url', {
   headers: {
-    'Content-Type': 'application/x-www-form-urlencoded'
+    'Content-Type': 'application/x-www-form-urlencoded',
   },
-  body: { message: 'Good game' }
+  body: { message: 'Good game' },
 })
 
 // The request above can be written in Fetch like this:
 fetch('some-url', {
   method: 'post',
-  body: 'message=Good+game'
+  body: 'message=Good+game',
 })
 ```
 
@@ -160,7 +160,7 @@ zlFetch('some-url', { auth: 'token12345' })
 
 // The above request can be written in Fetch like this:
 fetch('some-url', {
-  headers: { Authorization: `Bearer token12345` }
+  headers: { Authorization: `Bearer token12345` },
 })
 ```
 
@@ -193,8 +193,9 @@ zlFetch directs all 400 and 500 errors to the `catch` method. Errors contain the
 This makes is zlFetch super easy to use with promises.
 
 ```js
-zlFetch('some-url')
-  .catch(error => { /* Handle error */})
+zlFetch('some-url').catch(error => {
+  /* Handle error */
+})
 
 // The above request can be written in Fetch like this:
 fetch('some-url')
@@ -203,13 +204,15 @@ fetch('some-url')
       Promise.reject(response.json)
     }
   })
-  .catch(error => { /* Handle error */})
+  .catch(error => {
+    /* Handle error */
+  })
 ```
 
 zlFetch also gives you the option to pass all errors into an `errors` object instead of handling them in `catch`. This option is very much preferred when you don't your errors to be passed into a catch method. (Very useful when used in servers).
 
 ```js
-const {response, error} = await zlFetch('some-url')
+const { response, error } = await zlFetch('some-url')
 ```
 
 `zlFetch` changes the response and error objects. In zlFetch, `response` and `error` objects both include these five properties:
@@ -241,7 +244,30 @@ If you want to handle a response not supported by zlFetch, you can pass `customR
 
 ```js
 const response = await zlFetch('url', {
-  customResponseParser: true
+  customResponseParser: true,
 })
 const data = await response.arrayBuffer()
 ```
+
+## Creating a zlFetch instance
+
+This feature is super useful if you are going to send requests with the similar options url or options.
+
+```js
+import { createZLFetch } from 'zl-fetch'
+
+// Creating the instance
+const api = zlFetch(baseUrl, options)
+
+// Using the created instance
+const response = api.post('/resource', {
+  body: {
+    message: 'Hello',
+  },
+})
+```
+
+A few notes here:
+
+- `baseURL` will be prepended to the `url` for all requests made with the instance.
+- `options` will be merged with the options passed into request. The request options will override the instance options.

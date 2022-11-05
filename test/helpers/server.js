@@ -17,6 +17,11 @@ app.get('/', (req, res) => {
   res.json('Hello World')
 })
 
+// For testing createZlFetch
+app.use('/createZlFetch', (req, res) => {
+  res.json('Hello World')
+})
+
 // Returns the req.body
 app.use('/body', (req, res) => {
   res.json(req.body)
@@ -48,10 +53,10 @@ app.use('/text-error', (req, res) => {
 // x-www-form-urlencoded
 app.use('/x-www-form-urlencoded', (req, res) => {
   res.format({
-    'application/x-www-form-urlencoded' () {
+    'application/x-www-form-urlencoded'() {
       const data = { message: 'Error message' }
       res.send(querystring.encode(data))
-    }
+    },
   })
 })
 
