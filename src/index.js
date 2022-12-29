@@ -88,7 +88,7 @@ async function fetchInstance(options) {
 
 // Normalizes between Browser and Node Fetch
 export async function getFetch() {
-  if (typeof fetch === 'undefined') {
+  if (typeof fetch === 'undefined' || typeof window === 'undefined') {
     const f = await import('node-fetch')
     return {
       fetch: f.default,
