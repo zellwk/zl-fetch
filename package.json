@@ -1,6 +1,6 @@
 {
   "name": "zl-fetch",
-  "version": "4.1.0",
+  "version": "4.1.1",
   "description": "A library that makes the Fetch API easy to use",
   "type": "module",
   "files": [
