@@ -15,6 +15,7 @@ It's features are as follows:
 - [Authorization headers (both basic and bearer) are generated automatically ](#automatic-authorization-header-generation) with an `auth` property.
 - [Promise-like error handling](#error-handling) — all 400 and 500 errors are directed into the `catch` block automatically.
 - [Easy error handling when using `await`](#error-handling) — errors can be returned so you don't have to write a `try/catch` block.
+- [Instances can be created to hold common options](#creating-instances) so you don't have to repeat yourself.
 
 Note: From `v4.0.0` onwards, zlFetch is a ESM library. It cannot be used with CommonJS anymore.
 
