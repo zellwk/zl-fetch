@@ -9,7 +9,7 @@ It's features are as follows:
 - [Debug your request](#debugging-the-request) without looking at the Network panel
 - Shorthand for GET, POST, PUT, PATCH, and DELETE methods
 - [Generates query strings automatically](#automatic-generation-of-query-strings) so you don't have to mess with query parameters.
-- Sets [`Content-Type` is set to `application/json` by default](#automatic-content-type-generation-and-body-formatting). Override the `Content-Type` header anytime you need to
+- Sets [`Content-Type` is set to `application/json` by default](#automatic-content-type-generation-and-body-formatting). You can override the `Content-Type` header anytime you need to
 - [Body is converted into JSON automatically](#automatic-content-type-generation-and-body-formatting) when Content Type is `application/json`
 - [Body is converted into form data automatically](#automatic-content-type-generation-and-body-formatting) when Content Type is `application/x-www-form-urlencoded`.
 - [Authorization headers (both basic and bearer) are generated automatically ](#automatic-authorization-header-generation) with an `auth` property.
