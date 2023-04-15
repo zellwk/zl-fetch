@@ -2,22 +2,24 @@
 
 zlFetch is a wrapper around fetch that provides you with a convenient way to make requests.
 
+Note: From `v4.0.0` onwards, zlFetch is a ESM library. It cannot be used with CommonJS anymore.
+
 It's features are as follows:
 
-- [Use the response right away](#quick-start) without using `response.json()`, or `response.text()`
-- [Get everything you need](#contains-all-data-about-the-response) about your response — headers, body, statuses, and more.
-- [Debug your request](#debugging-the-request) without looking at the Network panel
-- Shorthand for GET, POST, PUT, PATCH, and DELETE methods
-- [Generates query strings automatically](#automatic-generation-of-query-strings) so you don't have to mess with query parameters.
-- Sets [`Content-Type` is set to `application/json` by default](#automatic-content-type-generation-and-body-formatting). You can override the `Content-Type` header anytime you need to
-- [Body is converted into JSON automatically](#automatic-content-type-generation-and-body-formatting) when Content Type is `application/json`
-- [Body is converted into form data automatically](#automatic-content-type-generation-and-body-formatting) when Content Type is `application/x-www-form-urlencoded`.
-- [Authorization headers (both basic and bearer) are generated automatically ](#automatic-authorization-header-generation) with an `auth` property.
-- [Promise-like error handling](#error-handling) — all 400 and 500 errors are directed into the `catch` block automatically.
-- [Easy error handling when using `await`](#error-handling) — errors can be returned so you don't have to write a `try/catch` block.
-- [Instances can be created to hold common options](#creating-instances) so you don't have to repeat yourself.
+- Quality of life improvements over the native `fetch` function
 
-Note: From `v4.0.0` onwards, zlFetch is a ESM library. It cannot be used with CommonJS anymore.
+  - [Use the response right away](#quick-start) without using `response.json()`, `response.text()`, or `response.blob()`
+  - [Promise-like error handling](#error-handling) — all 400 and 500 errors are directed into the `catch` block automatically.
+  - [Easy error handling when using `await`](#easy-error-handling-when-using-asyncawait) — errors can be returned so you don't have to write a `try/catch` block.
+
+- Additional improvements over the native `fetch` function
+  - `Content-Type` headers are set [automatically](#content-type-generation-based-on-body-content) based on the `body` content.
+  - [Get everything you need](#the-response-contains-all-the-data-you-may-need) about your response — `headers`, `body`, `status`, and more.
+  - [Debug your request](#debugging-the-request) without looking at the Network panel
+  - Shorthand for `GET`, `POST`, `PUT`, `PATCH`, and `DELETE` methods
+  - [Helper for generating query strings](#query-string-helpers) so you don't have to mess with query parameters.
+  - [Generates authorization headers](#authorization-header-helpers) with an `auth` property.
+  - [Create instances to hold url and options](#creating-a-zlfetch-instance) so you don't have to repeat yourself.
 
 ## Installing zlFetch
 
@@ -56,32 +58,6 @@ zlFetch('url')
   .catch(error => console.log(error))
 ```
 
-### Contains all data about the response
-
-zlFetch sends you all the data you need in the `response` object. This includes the following:
-
-- `headers`: response headers
-- `body`: response body
-- `status`: response status
-- `statusText`: response status text
-- `response`: original response from Fetch
-
-### Debugging the request
-
-New in `v4.0.0`: You can debug the request object by adding a `debug` option. This will reveal a `debug` object that contains the request being constructed.
-
-- url
-- method
-- headers
-- body
-
-```js
-zlFetch('url', { debug: true })
-  .then({ debug } => console.log(debug))
-```
-
-Note: The `logRequestOptions` option is replaced by the `debug` object in `v4.0.0`. The `logRequestOptions` option is no longer available.
-
 ### Shorthand methods for GET, POST, PUT, PATCH, and DELETE
 
 zlFetch contains shorthand methods for these common REST methods so you can use them quickly.
@@ -94,11 +70,80 @@ zlFetch.patch(/* some-url */)
 zlFetch.delete(/* some-url */)
 ```
 
-## Features that help you write less code
+### Supported response types
 
-### Automatic Generation of Query Strings
+zlFetch supports `json`, `text`, and `blob` response types so you don't have to write `response.json()`, `response.text()` or `response.blob()`.
 
-You can add `query` or `queries` as an option and zlFetch will create a query string for you automatically.:
+Other response types are not supported right now. If you need to support other response types, consider using your own [response handler](#custom-response-handler)
+
+### The response contains all the data you may need
+
+zlFetch sends you all the data you need in the `response` object. This includes the following:
+
+- `headers`: response headers
+- `body`: response body
+- `status`: response status
+- `statusText`: response status text
+- `response`: original response from Fetch
+
+We do this so you don't have to fish out the `headers`, `status`, `statusText` or even the rest of the `response` object by yourself.
+
+### Debugging the request
+
+New in `v4.0.0`: You can debug the request object by adding a `debug` option. This will reveal a `debug` object that contains the request being constructed.
+
+- `url`
+- `method`
+- `headers`
+- `body`
+
+```js
+zlFetch('url', { debug: true })
+  .then({ debug } => console.log(debug))
+```
+
+### Error Handling
+
+zlFetch directs all 400 and 500 errors to the `catch` method. Errors contain the same information as a response.
+
+- `headers`: response headers
+- `body`: response body
+- `status`: response status
+- `statusText`: response status text
+- `response`: original response from fetch
+
+This makes is zlFetch super easy to use with promises.
+
+```js
+zlFetch('some-url').catch(error => {
+  /* Handle error */
+})
+
+// The above request can be written in Fetch like this:
+fetch('some-url')
+  .then(response => {
+    if (!response.ok) {
+      Promise.reject(response.json)
+    }
+  })
+  .catch(error => {
+    /* Handle error */
+  })
+```
+
+### Easy error handling when using `async`/`await`
+
+zlFetch lets you pass all errors into an `errors` object. You can do this by adding a `returnError` option. This is useful when you work a lot with `async/await`.
+
+```js
+const { response, error } = await zlFetch('some-url', { returnError: true })
+```
+
+## Helpful Features
+
+### Query string helpers
+
+You can add `query` or `queries` as an option and zlFetch will create a query string for you automatically. Use this with `GET` requests.
 
 ```js
 zlFetch('some-url', {
@@ -112,18 +157,22 @@ zlFetch('some-url', {
 fetch('url?param1=value1&param2=to%20encode')
 ```
 
-### Automatic Content-Type Generation and Body Formatting
+### `Content-Type` generation based on `body` content
 
-zlFetch sets `Content-Type` to `application/json` for you automatically if your `method` is `POST`, `PUT`, or `PATCH`.
+zlFetch sets `Content-Type` appropriately depending on your `body` data. It supports three kinds of data:
 
-It will also help you `JSON.stringify` your body so you don't have to do it yourself.
+- Object
+- Query Strings
+- Form Data
+
+If you pass in an `object`, zlFetch will set `Content-Type` to `application/json`. It will also `JSON.stringify` your body so you don't have to do it yourself.
 
 ```js
 zlFetch.post('some-url', {
   body: { message: 'Good game' },
 })
 
-// The request above can be written in Fetch like this:
+// The above request is equivalent to this
 fetch('some-url', {
   method: 'post',
   headers: { 'Content-Type': 'application/json' },
@@ -131,26 +180,56 @@ fetch('some-url', {
 })
 ```
 
-You can manually set your `Content-Type` to other values and zlFetch will honour the value you set.
-
-If you set `Content-Type` to `application/x-www-form-urlencoded`, zlFetch will automatically format your body to `x-www-form-urlencoded` for you.
+zlFetch contains a `toObject` helper that lets you convert Form Data into an object. This makes it super easy to zlFetch with forms.
 
 ```js
-zlFetch.post('some-url', {
-  headers: {
-    'Content-Type': 'application/x-www-form-urlencoded',
-  },
-  body: { message: 'Good game' },
-})
+import { toObject } from 'zl-fetch'
+const data = new FormData(form.elements)
 
-// The request above can be written in Fetch like this:
-fetch('some-url', {
-  method: 'post',
-  body: 'message=Good+game',
+zlFetch('some-url', {
+  body: toObject(data),
 })
 ```
 
-### Automatic Authorization Header Generation
+If you pass in a string, zlFetch will set `Content-Type` to `application/x-www-form-urlencoded`.
+
+zlFetch also contains a `toQueryString` method that can help you convert objects to query strings so you can use this option easily.
+
+```js
+import { toQueryString } from 'zl-fetch'
+
+zlFetch.post('some-url', {
+  body: toQueryString({ message: 'Good game' }),
+})
+
+// The above request is equivalent to this
+fetch('some-url', {
+  method: 'post',
+  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+  body: 'message=Good%20game',
+})
+```
+
+If you pass in a Form Data, zlFetch will let the native `fetch` function handle the `Content-Type`. Generally, this will use `multipart/form-data` with the default options. If you use this, make sure your server can receive `multipart/form-data`!
+
+```js
+import { toObject } from 'zl-fetch'
+const data = new FormData(form.elements)
+
+zlFetch('some-url', { body: data })
+
+// The above request is equivalent to this
+fetch('some-url', { body: data })
+
+// Your server should be able to receive multipart/form-data if you do this. If you're using Express, you can a middleware like multer to make this possible:
+import multer from 'multer'
+const upload = multer()
+app.use(upload.array())
+```
+
+**Breaking Change in `v5.0.0`**: If you pass in a `Content-Type` header, zlFetch will not set format your body content anymore. We expect you to be able to pass in the correct data type. (We had to do this to support the new API mentioned above).
+
+### Authorization header helpers
 
 If you provide zlFetch with an `auth` property, it will generate an Authorization Header for you.
 
@@ -181,65 +260,53 @@ fetch('some-url', {
 });
 ```
 
-## Error Handling
+### Creating a zlFetch Instance
 
-zlFetch directs all 400 and 500 errors to the `catch` method. Errors contain the same information as a response.
+You can create an instance of `zlFetch` with predefined options. This is super helpful if you need to send requests with similar `options` or `url`.
 
-- `headers`: response headers
-- `body`: response body
-- `status`: response status
-- `statusText`: response status text
-- `response`: original response from fetch
-
-This makes is zlFetch super easy to use with promises.
+- `url` is required
+- `options` is optional
 
 ```js
-zlFetch('some-url').catch(error => {
-  /* Handle error */
-})
+import { createZLFetch } from 'zl-fetch'
 
-// The above request can be written in Fetch like this:
-fetch('some-url')
-  .then(response => {
-    if (!response.ok) {
-      Promise.reject(response.json)
-    }
-  })
-  .catch(error => {
-    /* Handle error */
-  })
+// Creating the instance
+const api = zlFetch(baseUrl, options)
 ```
 
-zlFetch also gives you the option to pass all errors into an `errors` object instead of handling them in `catch`. This option is very much preferred when you don't your errors to be passed into a catch method. (Very useful when used in servers).
+All instances have shorthand methods as well.
 
 ```js
-const { response, error } = await zlFetch('some-url')
+// Shorthand methods
+const response = api.get(/* ... */)
+const response = api.post(/* ... */)
+const response = api.put(/* ... */)
+const response = api.patch(/* ... */)
+const response = api.delete(/* ... */)
 ```
 
-`zlFetch` changes the response and error objects. In zlFetch, `response` and `error` objects both include these five properties:
+New in `v5.0.0`
 
-1. `headers`: response headers
-2. `body`: response body
-3. `status`: response status
-4. `statusText`: response status text
-5. `response`: original response from fetch
+You can now use a `zlFetch` instance without passing a URL. This is useful if you have created an instance with the right endpoints.
 
 ```js
-zlFetch('url')
-  .then(response => {
-    const headers = response.headers
-    const body = response.body
-  })
-  .catch(error => {
-    const headers = error.headers
-    const body = error.body
-    const status = error.status
-  })
+import { createZLFetch } from 'zl-fetch'
+
+// Creating the instance
+const api = zlFetch(baseUrl, options)
 ```
 
-## Handling other Response Types
+All instances have shorthand methods as well.
 
-zlFetch only supports `json`,`blob`, and `text` response types at this point. (PRs welcome if you want to help zlFetch handle more response types!).
+```js
+// Shorthand methods
+const response = api.get() // Without URL, without options
+const response = api.get('some-url') // With URL, without options
+const response = api.post('some-url', { body: 'message=good+game' }) // With URL, with options
+const response = api.post({ body: 'message=good+game' }) // Without URL, with options
+```
+
+### Custom response handler
 
 If you want to handle a response not supported by zlFetch, you can pass `customResponseParser: true` into the options. This returns the response from a normal Fetch request without any additional treatments from zlFetch. You can then use `response.json()` or other methods as you deem fit.
 
@@ -249,26 +316,3 @@ const response = await zlFetch('url', {
 })
 const data = await response.arrayBuffer()
 ```
-
-## Creating a zlFetch instance
-
-This feature is super useful if you are going to send requests with the similar options url or options.
-
-```js
-import { createZLFetch } from 'zl-fetch'
-
-// Creating the instance
-const api = zlFetch(baseUrl, options)
-
-// Using the created instance
-const response = api.post('/resource', {
-  body: {
-    message: 'Hello',
-  },
-})
-```
-
-A few notes here:
-
-- `baseURL` will be prepended to the `url` for all requests made with the instance.
-- `options` will be merged with the options passed into request. The request options will override the instance options.

@@ -18,8 +18,16 @@ app.get('/', (req, res) => {
 })
 
 // For testing createZlFetch
-app.use('/createZlFetch', (req, res) => {
+app.get('/createZlFetch', (req, res) => {
   res.json('Hello World')
+})
+
+app.delete('/createZlFetch', (req, res) => {
+  res.json('Hello World')
+})
+
+app.use('/createZlFetch', (req, res) => {
+  res.json(req.body)
 })
 
 // Returns the req.body
