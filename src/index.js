@@ -142,7 +142,7 @@ function debugHeaders(requestOptions) {
 export function toObject(formData) {
   const obj = {}
   for (const data of formData) {
-    obj[data[0]] = data[1]
+    obj[data[0]] = data[1].trim()
   }
   return obj
 }
