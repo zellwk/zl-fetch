@@ -139,7 +139,7 @@ function debugHeaders(requestOptions) {
  * @param {FormData} formData
  * @returns Object
  */
-export function toJSON(formData) {
+export function toObject(formData) {
   const obj = {}
   for (const data of formData) {
     obj[data[0]] = data[1]
