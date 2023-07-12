@@ -1,10 +1,10 @@
 export default function createRequestOptions(options = {}) {
   const opts = Object.assign({}, options)
-  const fetchHeaders = options.fetch.Headers
 
   // Note: headers get mutated after setHeaders is called.
   // This is why we get the content type here to know what the user originally set.
-  const headers = new fetchHeaders(options.headers)
+
+  const headers = new Headers(options.headers)
   const userContentType = headers.get('content-type')
 
   opts.url = setUrl(opts)
@@ -52,8 +52,7 @@ function setMethod(options) {
 // We set the headers depending on the request body and method
 // ========================
 function setHeaders(options) {
-  const fetchHeaders = options.fetch.Headers
-  let headers = new fetchHeaders(options.headers)
+  let headers = new Headers(options.headers)
   headers = contentTypeHeader(options, headers)
   headers = authHeader(options, headers)
 

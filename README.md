@@ -2,8 +2,6 @@
 
 zlFetch is a wrapper around fetch that provides you with a convenient way to make requests.
 
-Note: From `v4.0.0` onwards, zlFetch is a ESM library. It cannot be used with CommonJS anymore.
-
 It's features are as follows:
 
 - Quality of life improvements over the native `fetch` function
@@ -21,28 +19,32 @@ It's features are as follows:
   - [Generates authorization headers](#authorization-header-helpers) with an `auth` property.
   - [Create instances to hold url and options](#creating-a-zlfetch-instance) so you don't have to repeat yourself.
 
+Note: zlFetch is a ESM library since `v4.0.0`.
+
 ## Installing zlFetch
 
-You can install zlFetch through npm:
+### Through npm (recommended)
 
 ```bash
 # Installing through npm
 npm install zl-fetch --save
 ```
 
-Then you can use it by importing it in your JavaScript file. It works for both browsers and Node.
+Then you can use it by importing it in your JavaScript file.
 
 ```js
 import zlFetch from 'zl-fetch'
 ```
 
-Using `zlFetch` without `npm`:
+### Using `zlFetch` without `npm`:
 
-You can use `zlFetch` without `npm` by importing it directly to your HTML file. To do this, you first need to set your `script`'s type to `module`, then import `zlFetch` from a CDN jsdelivr.
+You can import zlFetch directly into JavaScript through a CDN.
+
+To do this, you first need to set your `script`'s type to `module`, then import `zlFetch`.
 
 ```html
 <script type="module">
-  import zlFetch from 'https://cdn.jsdelivr.net/npm/zl-fetch@5.0.1/src/index.js'
+  import zlFetch from 'https://cdn.jsdelivr.net/npm/zl-fetch@6.0.0/src/index.js'
 </script>
 ```
 

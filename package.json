@@ -3,15 +3,11 @@
   "version": "5.0.1",
   "description": "A library that makes the Fetch API easy to use",
   "type": "module",
+  "sideEffects": false,
   "files": [
     "src"
   ],
-  "exports": {
-    ".": {
-      "import": "./src/index.js"
-    },
-    "./*": "./src/*"
-  },
+  "exports": "./src/index.js",
   "keywords": [
     "fetch",
     "javascript",
@@ -28,9 +24,6 @@
   },
   "author": "Zell Liew <zellwk@gmail.com>",
   "license": "MIT",
-  "dependencies": {
-    "node-fetch": "^3.2.10"
-  },
   "devDependencies": {
     "@vitest/ui": "^0.23.4",
     "body-parser": "^1.20.0",

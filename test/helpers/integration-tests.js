@@ -1,10 +1,15 @@
 import { describe, expect, it } from 'vitest'
-import zlFetch, { createZlFetch, toQueryString } from '../../src/index.js'
 
 import FormData from 'form-data'
 import { getBtoa } from '../../src/createRequestOptions.js'
+import { toQueryString } from '../../src/util.js'
 
-export default function tests(environment) {
+export default function tests(environment, config) {
+  const { zlFetch, createZlFetch } = config
+
+  // ========================
+  // Basic zlFetch
+  // ========================
   describe(`Sending Requests (from ${environment})`, context => {
     it('Simple GET request', async ({ endpoint }) => {
       const response = await zlFetch(`${endpoint}`)
@@ -64,7 +69,7 @@ export default function tests(environment) {
 
     it('POST explicit content-type: application/json', async ({ endpoint }) => {
       // This one should fail because the body is not an object
-      const { response, error } = await zlFetch.post(`${endpoint}/body`, {
+      const { response, error } = await zlFetch(`${endpoint}/body`, {
         method: 'post',
         headers: { 'Content-Type': 'application/json' },
         body: toQueryString({ message: 'good game' }),
@@ -78,7 +83,7 @@ export default function tests(environment) {
     })
 
     it('POST with x-www-form-urlencoded data', async ({ endpoint }) => {
-      const response = await zlFetch.post(`${endpoint}/body`, {
+      const response = await zlFetch(`${endpoint}/body`, {
         method: 'post',
         body: toQueryString({ message: 'good game' }),
       })
@@ -92,16 +97,13 @@ export default function tests(environment) {
     }) => {
       // This one will send "fail" because the body is not a query string.
       // It will not return an error in this test because of how we configured the backend. But the data will be `object Object: ''` instead of `message=good+game`
-      const { response, error, debug } = await zlFetch.post(
-        `${endpoint}/body`,
-        {
-          method: 'post',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: { message: 'good game' },
-          returnError: true,
-          debug: true,
-        }
-      )
+      const { response, error, debug } = await zlFetch(`${endpoint}/body`, {
+        method: 'post',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: { message: 'good game' },
+        returnError: true,
+        debug: true,
+      })
 
       // This is just how we have configured our backend
       expect(response.status).toBe(200)
@@ -113,6 +115,9 @@ export default function tests(environment) {
     it.todo(`POST with Content Type set to 'x-www-form-urlencoded`)
   })
 
+  // ========================
+  // Receiving Responses
+  // ========================
   describe(`Receiving Responses (from ${environment})`, context => {
     it('Handles JSON response', async ({ endpoint }) => {
       const response = await zlFetch(`${endpoint}/json`)
@@ -129,6 +134,9 @@ export default function tests(environment) {
     })
   })
 
+  // ========================
+  // Basic Error Handling
+  // ========================
   describe(`Handling Errors (from ${environment})`, context => {
     it('Throws Error', async ({ endpoint }) => {
       const error = await zlFetch(`${endpoint}/json-error`).catch(err => err)
@@ -148,6 +156,9 @@ export default function tests(environment) {
     })
   })
 
+  // ========================
+  // Basic shorthand requests
+  // ========================
   describe(`Shorthand requests (from ${environment})`, context => {
     it('Shorthand GET request', async ({ endpoint }) => {
       const response = await zlFetch.get(`${endpoint}`)
@@ -175,7 +186,9 @@ export default function tests(environment) {
     })
   })
 
-  // Debug queries
+  // ========================
+  // Debug Queries
+  // ========================
   describe(`Debug (from ${environment})`, context => {
     it('GET Request that contain queries', async ({ endpoint }) => {
       const { debug } = await zlFetch(`${endpoint}/queries`, {
@@ -231,6 +244,9 @@ export default function tests(environment) {
     })
   })
 
+  // ========================
+  // Authentication
+  // ========================
   describe(`Authentication (from ${environment})`, context => {
     it('Ensures Btoa function works', async => {
       // Test btoa function to ensure there's no error.
@@ -273,116 +289,121 @@ export default function tests(environment) {
       expect(authHeader).toBe('Bearer 12345')
     })
   })
+
+  // ========================
+  // Create
+  // ========================
+  describe('Create zlFetch object', _ => {
+    it('Simple GET', async ({ endpoint }) => {
+      const created = createZlFetch(endpoint)
+      const response = await created('createZlFetch')
+      expect(response.body).toBe('Hello World')
+      expect(response.status).toBe(200)
+    })
+
+    it('Normalizes baseURL and URL', async ({ endpoint }) => {
+      // BaseURL does not have /
+      const created = createZlFetch(endpoint)
+      const [response1, response2] = await Promise.all([
+        created('createZlFetch'),
+        created('/createZlFetch'),
+      ])
+
+      expect(response1.body).toBe('Hello World')
+      expect(response1.status).toBe(200)
+      expect(response2.body).toBe('Hello World')
+      expect(response2.status).toBe(200)
+
+      // BaseURL have /
+      const created2 = createZlFetch(endpoint + '/')
+      const [response3, response4] = await Promise.all([
+        created2('createZlFetch'),
+        created2('/createZlFetch'),
+      ])
+
+      expect(response3.body).toBe('Hello World')
+      expect(response3.status).toBe(200)
+      expect(response4.body).toBe('Hello World')
+      expect(response4.status).toBe(200)
+    })
+
+    // Shorthands
+    // ========================
+    it('Shorthand GET request', async ({ endpoint }) => {
+      const created = createZlFetch(endpoint)
+      const response = await created.get('createZlFetch')
+      expect(response.body).toBe('Hello World')
+      expect(response.status).toBe(200)
+    })
+
+    it('Shorthand POST request', async ({ endpoint }) => {
+      const created = createZlFetch(endpoint)
+      const response = await created.post('createZlFetch', {
+        body: { message: 'good game' },
+      })
+
+      expect(response.body.message).toBe('good game')
+      expect(response.status).toBe(200)
+    })
+
+    it('Shorthand PUT request', async ({ endpoint }) => {
+      const created = createZlFetch(endpoint)
+      const response = await created.put('createZlFetch', {
+        body: { message: 'good game' },
+      })
+
+      expect(response.body.message).toBe('good game')
+      expect(response.status).toBe(200)
+    })
+
+    it('Shorthand DELETE request', async ({ endpoint }) => {
+      const created = createZlFetch(endpoint)
+      const response = await created.delete('createZlFetch')
+      expect(response.body).toBe('Hello World')
+      expect(response.status).toBe(200)
+    })
+
+    it('Transfers Options accurately', async ({ endpoint }) => {
+      const created = createZlFetch(endpoint, {
+        auth: '12345',
+      })
+
+      const { response, debug } = await created.post('createZlFetch', {
+        debug: true,
+        body: {
+          message: 'Hello World',
+        },
+      })
+
+      let { headers, body } = debug
+      body = JSON.parse(body)
+
+      expect(debug.url).toBe(`${endpoint}/createZlFetch`)
+      expect(headers.authorization).toBe('Bearer 12345')
+      expect(headers['content-type']).toBe('application/json')
+      expect(body.message).toBe('Hello World')
+    })
+  })
+
+  describe('Created zlFetch Object', _ => {
+    it('Should not require a URL', async ({ endpoint }) => {
+      // Because the URL can already be set in createZlFetch itself
+      const created = createZlFetch(`${endpoint}/createZlFetch/`)
+      const response = await created()
+      // const response2 = await created('something')
+      // const response3 = await created('something', { body: 'haha' })
+      // const response4 = await created({ body: 'haha' })
+      expect(response.body).toBe('Hello World')
+      expect(response.status).toBe(200)
+    })
+
+    it('Can have options without URL', async ({ endpoint }) => {
+      // Because the URL can already be set in createZlFetch itself
+      const created = createZlFetch(`${endpoint}/createZlFetch/`)
+      const response = await created.post({ body: { message: 'haha' } })
+
+      expect(response.body.message).toBe('haha')
+      expect(response.status).toBe(200)
+    })
+  })
 }
-
-describe('Create zlFetch object', _ => {
-  it('Simple GET', async ({ endpoint }) => {
-    const created = createZlFetch(endpoint)
-    const response = await created.get('createZlFetch')
-    expect(response.body).toBe('Hello World')
-    expect(response.status).toBe(200)
-  })
-
-  it('Normalizes baseURL and URL', async ({ endpoint }) => {
-    // BaseURL does not have /
-    const created = createZlFetch(endpoint)
-    const [response1, response2] = await Promise.all([
-      created.get('createZlFetch'),
-      created.get('/createZlFetch'),
-    ])
-
-    expect(response1.body).toBe('Hello World')
-    expect(response1.status).toBe(200)
-    expect(response2.body).toBe('Hello World')
-    expect(response2.status).toBe(200)
-
-    // BaseURL have /
-    const created2 = createZlFetch(endpoint + '/')
-    const [response3, response4] = await Promise.all([
-      created2.get('createZlFetch'),
-      created2.get('/createZlFetch'),
-    ])
-
-    expect(response3.body).toBe('Hello World')
-    expect(response3.status).toBe(200)
-    expect(response4.body).toBe('Hello World')
-    expect(response4.status).toBe(200)
-  })
-
-  it('Shorthand GET request', async ({ endpoint }) => {
-    const created = createZlFetch(endpoint)
-    const response = await created.get('createZlFetch')
-    expect(response.body).toBe('Hello World')
-    expect(response.status).toBe(200)
-  })
-
-  it('Shorthand POST request', async ({ endpoint }) => {
-    const created = createZlFetch(endpoint)
-    const response = await created.post('createZlFetch', {
-      body: { message: 'good game' },
-    })
-
-    expect(response.body.message).toBe('good game')
-    expect(response.status).toBe(200)
-  })
-
-  it('Shorthand PUT request', async ({ endpoint }) => {
-    const created = createZlFetch(endpoint)
-    const response = await created.put('createZlFetch', {
-      body: { message: 'good game' },
-    })
-
-    expect(response.body.message).toBe('good game')
-    expect(response.status).toBe(200)
-  })
-
-  it('Shorthand DELETE request', async ({ endpoint }) => {
-    const created = createZlFetch(endpoint)
-    const response = await created.delete('createZlFetch')
-    expect(response.body).toBe('Hello World')
-    expect(response.status).toBe(200)
-  })
-
-  it('Transfers Options accurately', async ({ endpoint }) => {
-    const created = createZlFetch(endpoint, {
-      auth: '12345',
-    })
-
-    const { response, debug } = await created.post('createZlFetch', {
-      debug: true,
-      body: {
-        message: 'Hello World',
-      },
-    })
-
-    let { headers, body } = debug
-    body = JSON.parse(body)
-
-    expect(debug.url).toBe(`${endpoint}/createZlFetch`)
-    expect(headers.authorization).toBe('Bearer 12345')
-    expect(headers['content-type']).toBe('application/json')
-    expect(body.message).toBe('Hello World')
-  })
-})
-
-describe('Created zlFetch Object', _ => {
-  it('Should not require a URL', async ({ endpoint }) => {
-    // Because the URL can already be set in createZlFetch itself
-    const created = createZlFetch(`${endpoint}/createZlFetch/`)
-    const response = await created()
-    // const response2 = await created('something')
-    // const response3 = await created('something', { body: 'haha' })
-    // const response4 = await created({ body: 'haha' })
-    expect(response.body).toBe('Hello World')
-    expect(response.status).toBe(200)
-  })
-
-  it('Can have options without URL', async ({ endpoint }) => {
-    // Because the URL can already be set in createZlFetch itself
-    const created = createZlFetch(`${endpoint}/createZlFetch/`)
-    const response = await created.post({ body: { message: 'haha' } })
-
-    expect(response.body.message).toBe('haha')
-    expect(response.status).toBe(200)
-  })
-})
