@@ -25,6 +25,10 @@ async function fetchInstance(options) {
 
   // Remove options that are not native to a fetch request
   delete requestOptions.fetch
+  delete requestOptions.queries
+  delete requestOptions.query
+  delete requestOptions.params
+  delete requestOptions.param
   delete requestOptions.auth
   delete requestOptions.debug
   delete requestOptions.returnError

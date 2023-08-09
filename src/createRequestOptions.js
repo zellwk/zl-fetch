@@ -21,11 +21,11 @@ export default function createRequestOptions(options = {}) {
  * @param {Object} opts
  */
 function setUrl(options) {
-  const { url, queries, query } = options
+  const { url, queries, query, params, param } = options
 
-  // Merge queries and query for easier use
+  // Merge queries, query, and params — treat them as the same item
   // So users don't have to remember singular or plural forms
-  const q = Object.assign({}, queries, query)
+  const q = Object.assign({}, queries, query, params, param)
 
   if (isEmptyObject(q)) return options.url
 
