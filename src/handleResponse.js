@@ -1,4 +1,4 @@
-export function handleResponse (response, options) {
+export function handleResponse(response, options) {
   // Lets user use custom response parser because some people want to do so.
   // See https://github.com/zellwk/zl-fetch/issues/2
   if (options?.customResponseParser) {
@@ -14,7 +14,7 @@ export function handleResponse (response, options) {
  * Formats all errors into zlFetch style error
  * @param {Object} error - The error object
  */
-export function handleError (error) {
+export function handleError(error) {
   if (error.message === 'Failed to fetch') {
     /* eslint-disable */
     return Promise.reject({ error })
@@ -26,7 +26,7 @@ export function handleError (error) {
 // ========================
 // Internal Functions
 // ========================
-function getResponseType (type) {
+function getResponseType(type) {
   if (!type) return null // Handles 204 No Content
   if (type.includes('json')) return 'json'
   if (type.includes('text')) return 'text'
@@ -37,29 +37,27 @@ function getResponseType (type) {
   throw new Error(`zlFetch does not support content-type ${type} yet`)
 }
 
-async function parseResponse (response, options) {
+async function parseResponse(response, options) {
   // Parse formData into JavaScript object
   if (options.type === 'formData') {
     let body = await response.text()
     const query = new URLSearchParams(body)
     body = Object.fromEntries(query)
-
     return createOutput({ response, body, options })
   }
 
-  // We use bracket notation to allow multiple types to be parsed at the same time.
   const body = await response[options.type]()
   return createOutput({ response, body, options })
 }
 
-function createOutput ({ response, body, options }) {
+function createOutput({ response, body, options }) {
   const headers = getHeaders(response)
   const returnValue = {
     body,
     headers,
     response,
     status: response.status,
-    statusText: response.statusText
+    statusText: response.statusText,
   }
 
   // Resolves if successful response
@@ -85,19 +83,19 @@ function createOutput ({ response, body, options }) {
 
     return Promise.resolve({
       response: data,
-      error
+      error,
     })
   }
 }
 
-function getHeaders (response) {
+function getHeaders(response) {
   return response.headers.entries
     ? getBrowserFetchHeaders(response)
     : getNodeFetchHeaders(response)
 }
 
 // window.fetch response headers contains entries method.
-function getBrowserFetchHeaders (response) {
+function getBrowserFetchHeaders(response) {
   const headers = {}
   for (const [header, value] of response.headers.entries()) {
     headers[header] = value
@@ -106,7 +104,7 @@ function getBrowserFetchHeaders (response) {
 }
 
 // Node fetch response headers does not contain entries method.
-function getNodeFetchHeaders (response) {
+function getNodeFetchHeaders(response) {
   const headers = {}
   const h = response.headers._headers
   for (const header in h) {
