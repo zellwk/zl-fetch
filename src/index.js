@@ -8,4 +8,6 @@ let fn = coreFetch
 fn = createShorthandMethods(fn)
 
 export default fn
-export const createZlFetch = create
+const createZlFetch = create
+
+export { create, createZlFetch }
