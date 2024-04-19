@@ -15,7 +15,10 @@
     "nodejs",
     "ajax"
   ],
-  "repository": "https://github.com/zellwk/zl-fetch",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zellwk/zl-fetch.git"
+  },
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
