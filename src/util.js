@@ -20,3 +20,11 @@ export function toQueryString(object) {
   const searchParams = new URLSearchParams(object)
   return searchParams.toString()
 }
+
+export function reject(error) {
+  return Promise.reject({
+    status: error.status,
+    statusText: error.statusText,
+    body: error.body,
+  })
+}
