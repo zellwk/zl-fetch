@@ -1,3 +1,5 @@
+import statuses from 'statuses'
+
 /**
  * Converts Form Data into an object
  * @param {FormData} formData
@@ -21,10 +23,16 @@ export function toQueryString(object) {
   return searchParams.toString()
 }
 
+// When rejecting API errors, use this to make them easier to read.
+// Also doubles up as a way to standardize error messages and status codes.
 export function reject(error) {
-  return Promise.reject({
+  const err = {
     status: error.status,
-    statusText: error.statusText,
-    body: error.body,
-  })
+    statusText: error.statusText || statuses[error.status],
+  }
+
+  if (error.body) err.body = error.body
+  if (error.message) err.message = error.message
+
+  return Promise.reject(err)
 }
