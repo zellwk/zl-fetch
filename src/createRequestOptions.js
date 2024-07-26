@@ -43,7 +43,7 @@ function isEmptyObject(obj) {
 
 function setMethod(options) {
   // Method set to GET by default unless otherwise specified
-  const method = options.method || 'get'
+  const method = (options.method || 'get').toUpperCase()
   return method
 }
 
