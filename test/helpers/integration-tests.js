@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
 
-import FormData from 'form-data'
 import { getBtoa } from '../../src/createRequestOptions.js'
 import { toQueryString } from '../../src/util.js'
 
@@ -228,7 +227,7 @@ export default function tests(environment, config) {
       const { debug } = await zlFetch(`${endpoint}/`, {
         debug: true,
       })
-      expect(debug.method).toBe('get')
+      expect(debug.method).toBe('GET')
       expect(debug.headers).toEqual({})
       expect(debug.body).toBeUndefined()
     })
@@ -238,7 +237,7 @@ export default function tests(environment, config) {
         method: 'options',
         debug: true,
       })
-      expect(debug.method).toBe('options')
+      expect(debug.method).toBe('OPTIONS')
       expect(debug.headers).toEqual({})
       expect(debug.body).toBeUndefined()
     })
