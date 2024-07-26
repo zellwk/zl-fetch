@@ -28,7 +28,7 @@ export function toQueryString(object) {
 export function reject(error) {
   const err = {
     status: error.status,
-    statusText: error.statusText || statuses[error.status],
+    statusText: error.statusText || statuses(error.status),
   }
 
   if (error.body) err.body = error.body
