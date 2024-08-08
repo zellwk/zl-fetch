@@ -19,4 +19,11 @@ export function coreFetch(url: string, options?: {
     returnError?: string;
     customResponseParser?: string;
 }): Promise<any>;
-export function createShorthandMethods(fn: any): any;
+export namespace coreFetch {
+    export function get(url: any, options: any): Promise<any>;
+    export function post(url: any, options: any): Promise<any>;
+    export function put(url: any, options: any): Promise<any>;
+    export function patch(url: any, options: any): Promise<any>;
+    function _delete(url: any, options: any): Promise<any>;
+    export { _delete as delete };
+}

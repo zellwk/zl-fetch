@@ -53,17 +53,39 @@ function debugHeaders(requestOptions) {
   return clone
 }
 
-export function createShorthandMethods(fn) {
-  const methods = ['get', 'post', 'put', 'patch', 'delete']
+// so it will be captured by ts
 
-  for (const method of methods) {
-    fn[method] = function (url, options) {
-      return coreFetch(url, {
-        ...options,
-        method,
-      })
-    }
-  }
+coreFetch.get = function (url, options) {
+  return coreFetch(url, {
+    ...options,
+    method: 'get'
+  })
+}
 
-  return fn
+coreFetch.post = function (url, options) {
+  return coreFetch(url, {
+    ...options,
+    method: 'post'
+  })
+}
+
+coreFetch.put = function (url, options) {
+  return coreFetch(url, {
+    ...options,
+    method: 'put'
+  })
+}
+
+coreFetch.patch = function (url, options) {
+  return coreFetch(url, {
+    ...options,
+    method: 'patch'
+  })
+}
+
+coreFetch.delete = function (url, options) {
+  return coreFetch(url, {
+    ...options,
+    method: 'delete'
+  })
 }
