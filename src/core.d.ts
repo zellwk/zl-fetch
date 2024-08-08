@@ -1,6 +1,5 @@
 /**
  * Main Fetch Function
- * @function coreFetch
  * @param {string} url - endpoint
  * @param {object} [options] - zlFetch options
  * @param {string} [options.method] - HTTP method
@@ -28,4 +27,3 @@ export namespace coreFetch {
     function _delete(url: any, options: any): Promise<any>;
     export { _delete as delete };
 }
-export function createShorthandMethods(fn: any): any;

@@ -3,7 +3,6 @@ import { handleError, handleResponse } from './handleResponse.js'
 
 /**
  * Main Fetch Function
- * @function coreFetch
  * @param {string} url - endpoint
  * @param {object} [options] - zlFetch options
  * @param {string} [options.method] - HTTP method
