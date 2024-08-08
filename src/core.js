@@ -54,6 +54,8 @@ function debugHeaders(requestOptions) {
   return clone
 }
 
+// so it will be captured by ts
+
 coreFetch.get = function (url, options) {
   return coreFetch(url, {
     ...options,
@@ -87,22 +89,4 @@ coreFetch.delete = function (url, options) {
     ...options,
     method: 'delete'
   })
-}
-
-
-
-export function createShorthandMethods(fn) {
-  const methods = ['get', 'post', 'put', 'patch', 'delete']
-
-  for (const method of methods) {
-
-    fn[method] = function (url, options) {
-      return coreFetch(url, {
-        ...options,
-        method,
-      })
-    }
-  }
-
-  return fn
 }
