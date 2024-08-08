@@ -1,6 +1,6 @@
 {
   "name": "@juji/zl-fetch",
-  "version": "6.0.8",
+  "version": "6.0.9",
   "description": "A library that makes the Fetch API easy to use",
   "type": "module",
   "sideEffects": false,
