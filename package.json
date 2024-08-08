@@ -23,6 +23,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
+    "types": "npx -p typescript tsc ./src/*.js --declaration --allowJs --emitDeclarationOnly --outDir src",
     "release": "np --no-publish && npm publish"
   },
   "author": "Zell Liew <zellwk@gmail.com>",
