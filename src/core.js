@@ -59,6 +59,43 @@ function debugHeaders(requestOptions) {
   return clone
 }
 
+coreFetch.get = function (url, options) {
+  return coreFetch(url, {
+    ...options,
+    method: 'get'
+  })
+}
+
+coreFetch.post = function (url, options) {
+  return coreFetch(url, {
+    ...options,
+    method: 'post'
+  })
+}
+
+coreFetch.put = function (url, options) {
+  return coreFetch(url, {
+    ...options,
+    method: 'put'
+  })
+}
+
+coreFetch.patch = function (url, options) {
+  return coreFetch(url, {
+    ...options,
+    method: 'patch'
+  })
+}
+
+coreFetch.delete = function (url, options) {
+  return coreFetch(url, {
+    ...options,
+    method: 'delete'
+  })
+}
+
+
+
 export function createShorthandMethods(fn) {
   const methods = ['get', 'post', 'put', 'patch', 'delete']
 
