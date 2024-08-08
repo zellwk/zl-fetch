@@ -3,6 +3,7 @@ import { handleError, handleResponse } from './handleResponse.js'
 
 /**
  * Main Fetch Function
+ * @function coreFetch
  * @param {string} url - endpoint
  * @param {object} [options] - zlFetch options
  * @param {string} [options.method] - HTTP method
@@ -12,6 +13,11 @@ import { handleError, handleResponse } from './handleResponse.js'
  * @param {string} [options.debug] - Logs the request options for debugging
  * @param {string} [options.returnError] - Returns the error instead of rejecting it
  * @param {string} [options.customResponseParser] - Use a custome response parser
+ * @property {get} coreFetch
+ * @property {post} coreFetch
+ * @property {put} coreFetch
+ * @property {patch} coreFetch
+ * @property {delete} coreFetch
  */
 
 export function coreFetch(url, options) {
@@ -57,6 +63,7 @@ export function createShorthandMethods(fn) {
   const methods = ['get', 'post', 'put', 'patch', 'delete']
 
   for (const method of methods) {
+
     fn[method] = function (url, options) {
       return coreFetch(url, {
         ...options,
