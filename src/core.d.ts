@@ -3,6 +3,10 @@
  * @param {string} url - endpoint
  * @param {object} [options] - zlFetch options
  * @param {string} [options.method] - HTTP method
+ * @param {object} [options.query] - query Object
+ * @param {object} [options.queries] - query Object
+ * @param {object} [options.params] - query Object
+ * @param {object} [options.param] - query Object
  * @param {object} [options.headers] - HTTP headers
  * @param {object} [options.body] - Body content
  * @param {string} [options.auth] - Authentication information
@@ -12,6 +16,10 @@
  */
 export function coreFetch(url: string, options?: {
     method?: string;
+    query?: object;
+    queries?: object;
+    params?: object;
+    param?: object;
     headers?: object;
     body?: object;
     auth?: string;

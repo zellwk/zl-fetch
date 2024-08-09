@@ -6,6 +6,10 @@ import { handleError, handleResponse } from './handleResponse.js'
  * @param {string} url - endpoint
  * @param {object} [options] - zlFetch options
  * @param {string} [options.method] - HTTP method
+ * @param {object} [options.query] - query Object
+ * @param {object} [options.queries] - query Object
+ * @param {object} [options.params] - query Object
+ * @param {object} [options.param] - query Object
  * @param {object} [options.headers] - HTTP headers
  * @param {object} [options.body] - Body content
  * @param {string} [options.auth] - Authentication information
@@ -15,7 +19,7 @@ import { handleError, handleResponse } from './handleResponse.js'
  */
 
 export function coreFetch(url, options) {
-  return fetchInstance({ url, ...options||{} })
+  return fetchInstance({ url, ...options })
 }
 // ========================
 // Internal Functions
