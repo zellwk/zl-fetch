@@ -59,6 +59,21 @@ function debugHeaders(requestOptions) {
 
 // so it will be captured by ts
 
+/**
+ * @param {string} url - endpoint
+ * @param {object} [options] - zlFetch options
+ * @param {string} [options.method] - HTTP method
+ * @param {object} [options.query] - query Object
+ * @param {object} [options.queries] - query Object
+ * @param {object} [options.params] - query Object
+ * @param {object} [options.param] - query Object
+ * @param {object} [options.headers] - HTTP headers
+ * @param {object} [options.body] - Body content
+ * @param {string} [options.auth] - Authentication information
+ * @param {string} [options.debug] - Logs the request options for debugging
+ * @param {string} [options.returnError] - Returns the error instead of rejecting it
+ * @param {string} [options.customResponseParser] - Use a custome response parser
+ */
 coreFetch.get = function (url, options) {
   return coreFetch(url, {
     ...options,
@@ -66,6 +81,21 @@ coreFetch.get = function (url, options) {
   })
 }
 
+/**
+ * @param {string} url - endpoint
+ * @param {object} [options] - zlFetch options
+ * @param {string} [options.method] - HTTP method
+ * @param {object} [options.query] - query Object
+ * @param {object} [options.queries] - query Object
+ * @param {object} [options.params] - query Object
+ * @param {object} [options.param] - query Object
+ * @param {object} [options.headers] - HTTP headers
+ * @param {object} [options.body] - Body content
+ * @param {string} [options.auth] - Authentication information
+ * @param {string} [options.debug] - Logs the request options for debugging
+ * @param {string} [options.returnError] - Returns the error instead of rejecting it
+ * @param {string} [options.customResponseParser] - Use a custome response parser
+ */
 coreFetch.post = function (url, options) {
   return coreFetch(url, {
     ...options,
@@ -73,6 +103,21 @@ coreFetch.post = function (url, options) {
   })
 }
 
+/**
+ * @param {string} url - endpoint
+ * @param {object} [options] - zlFetch options
+ * @param {string} [options.method] - HTTP method
+ * @param {object} [options.query] - query Object
+ * @param {object} [options.queries] - query Object
+ * @param {object} [options.params] - query Object
+ * @param {object} [options.param] - query Object
+ * @param {object} [options.headers] - HTTP headers
+ * @param {object} [options.body] - Body content
+ * @param {string} [options.auth] - Authentication information
+ * @param {string} [options.debug] - Logs the request options for debugging
+ * @param {string} [options.returnError] - Returns the error instead of rejecting it
+ * @param {string} [options.customResponseParser] - Use a custome response parser
+ */
 coreFetch.put = function (url, options) {
   return coreFetch(url, {
     ...options,
@@ -80,6 +125,21 @@ coreFetch.put = function (url, options) {
   })
 }
 
+/**
+ * @param {string} url - endpoint
+ * @param {object} [options] - zlFetch options
+ * @param {string} [options.method] - HTTP method
+ * @param {object} [options.query] - query Object
+ * @param {object} [options.queries] - query Object
+ * @param {object} [options.params] - query Object
+ * @param {object} [options.param] - query Object
+ * @param {object} [options.headers] - HTTP headers
+ * @param {object} [options.body] - Body content
+ * @param {string} [options.auth] - Authentication information
+ * @param {string} [options.debug] - Logs the request options for debugging
+ * @param {string} [options.returnError] - Returns the error instead of rejecting it
+ * @param {string} [options.customResponseParser] - Use a custome response parser
+ */
 coreFetch.patch = function (url, options) {
   return coreFetch(url, {
     ...options,
@@ -87,6 +147,21 @@ coreFetch.patch = function (url, options) {
   })
 }
 
+/**
+ * @param {string} url - endpoint
+ * @param {object} [options] - zlFetch options
+ * @param {string} [options.method] - HTTP method
+ * @param {object} [options.query] - query Object
+ * @param {object} [options.queries] - query Object
+ * @param {object} [options.params] - query Object
+ * @param {object} [options.param] - query Object
+ * @param {object} [options.headers] - HTTP headers
+ * @param {object} [options.body] - Body content
+ * @param {string} [options.auth] - Authentication information
+ * @param {string} [options.debug] - Logs the request options for debugging
+ * @param {string} [options.returnError] - Returns the error instead of rejecting it
+ * @param {string} [options.customResponseParser] - Use a custome response parser
+ */
 coreFetch.delete = function (url, options) {
   return coreFetch(url, {
     ...options,
