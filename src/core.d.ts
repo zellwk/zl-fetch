@@ -31,7 +31,6 @@ export namespace coreFetch {
     /**
      * @param {string} url - endpoint
      * @param {object} [options] - zlFetch options
-     * @param {string} [options.method] - HTTP method
      * @param {object} [options.query] - query Object
      * @param {object} [options.queries] - query Object
      * @param {object} [options.params] - query Object
@@ -43,7 +42,6 @@ export namespace coreFetch {
      * @param {string} [options.customResponseParser] - Use a custome response parser
      */
     export function get(url: string, options?: {
-        method?: string;
         query?: object;
         queries?: object;
         params?: object;
@@ -57,7 +55,6 @@ export namespace coreFetch {
     /**
      * @param {string} url - endpoint
      * @param {object} [options] - zlFetch options
-     * @param {string} [options.method] - HTTP method
      * @param {object} [options.query] - query Object
      * @param {object} [options.queries] - query Object
      * @param {object} [options.params] - query Object
@@ -70,7 +67,6 @@ export namespace coreFetch {
      * @param {string} [options.customResponseParser] - Use a custome response parser
      */
     export function post(url: string, options?: {
-        method?: string;
         query?: object;
         queries?: object;
         params?: object;
@@ -85,7 +81,6 @@ export namespace coreFetch {
     /**
      * @param {string} url - endpoint
      * @param {object} [options] - zlFetch options
-     * @param {string} [options.method] - HTTP method
      * @param {object} [options.query] - query Object
      * @param {object} [options.queries] - query Object
      * @param {object} [options.params] - query Object
@@ -98,7 +93,6 @@ export namespace coreFetch {
      * @param {string} [options.customResponseParser] - Use a custome response parser
      */
     export function put(url: string, options?: {
-        method?: string;
         query?: object;
         queries?: object;
         params?: object;
@@ -113,7 +107,6 @@ export namespace coreFetch {
     /**
      * @param {string} url - endpoint
      * @param {object} [options] - zlFetch options
-     * @param {string} [options.method] - HTTP method
      * @param {object} [options.query] - query Object
      * @param {object} [options.queries] - query Object
      * @param {object} [options.params] - query Object
@@ -126,7 +119,6 @@ export namespace coreFetch {
      * @param {string} [options.customResponseParser] - Use a custome response parser
      */
     export function patch(url: string, options?: {
-        method?: string;
         query?: object;
         queries?: object;
         params?: object;
@@ -141,7 +133,6 @@ export namespace coreFetch {
     /**
      * @param {string} url - endpoint
      * @param {object} [options] - zlFetch options
-     * @param {string} [options.method] - HTTP method
      * @param {object} [options.query] - query Object
      * @param {object} [options.queries] - query Object
      * @param {object} [options.params] - query Object
@@ -153,7 +144,6 @@ export namespace coreFetch {
      * @param {string} [options.customResponseParser] - Use a custome response parser
      */
     function _delete(url: string, options?: {
-        method?: string;
         query?: object;
         queries?: object;
         params?: object;

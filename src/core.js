@@ -62,7 +62,6 @@ function debugHeaders(requestOptions) {
 /**
  * @param {string} url - endpoint
  * @param {object} [options] - zlFetch options
- * @param {string} [options.method] - HTTP method
  * @param {object} [options.query] - query Object
  * @param {object} [options.queries] - query Object
  * @param {object} [options.params] - query Object
@@ -83,7 +82,6 @@ coreFetch.get = function (url, options) {
 /**
  * @param {string} url - endpoint
  * @param {object} [options] - zlFetch options
- * @param {string} [options.method] - HTTP method
  * @param {object} [options.query] - query Object
  * @param {object} [options.queries] - query Object
  * @param {object} [options.params] - query Object
@@ -105,7 +103,6 @@ coreFetch.post = function (url, options) {
 /**
  * @param {string} url - endpoint
  * @param {object} [options] - zlFetch options
- * @param {string} [options.method] - HTTP method
  * @param {object} [options.query] - query Object
  * @param {object} [options.queries] - query Object
  * @param {object} [options.params] - query Object
@@ -127,7 +124,6 @@ coreFetch.put = function (url, options) {
 /**
  * @param {string} url - endpoint
  * @param {object} [options] - zlFetch options
- * @param {string} [options.method] - HTTP method
  * @param {object} [options.query] - query Object
  * @param {object} [options.queries] - query Object
  * @param {object} [options.params] - query Object
@@ -149,7 +145,6 @@ coreFetch.patch = function (url, options) {
 /**
  * @param {string} url - endpoint
  * @param {object} [options] - zlFetch options
- * @param {string} [options.method] - HTTP method
  * @param {object} [options.query] - query Object
  * @param {object} [options.queries] - query Object
  * @param {object} [options.params] - query Object
