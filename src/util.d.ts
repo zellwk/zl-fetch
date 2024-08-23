@@ -10,3 +10,4 @@ export function toObject(formData: FormData): {};
  * @returns
  */
 export function toQueryString(object: any): string;
+export function reject(error: any): Promise<never>;

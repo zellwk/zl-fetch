@@ -37,7 +37,6 @@ export namespace coreFetch {
      * @param {object} [options.params] - query Object
      * @param {object} [options.param] - query Object
      * @param {object} [options.headers] - HTTP headers
-     * @param {object} [options.body] - Body content
      * @param {string} [options.auth] - Authentication information
      * @param {string} [options.debug] - Logs the request options for debugging
      * @param {string} [options.returnError] - Returns the error instead of rejecting it
@@ -50,7 +49,6 @@ export namespace coreFetch {
         params?: object;
         param?: object;
         headers?: object;
-        body?: object;
         auth?: string;
         debug?: string;
         returnError?: string;
@@ -149,7 +147,6 @@ export namespace coreFetch {
      * @param {object} [options.params] - query Object
      * @param {object} [options.param] - query Object
      * @param {object} [options.headers] - HTTP headers
-     * @param {object} [options.body] - Body content
      * @param {string} [options.auth] - Authentication information
      * @param {string} [options.debug] - Logs the request options for debugging
      * @param {string} [options.returnError] - Returns the error instead of rejecting it
@@ -162,7 +159,6 @@ export namespace coreFetch {
         params?: object;
         param?: object;
         headers?: object;
-        body?: object;
         auth?: string;
         debug?: string;
         returnError?: string;
