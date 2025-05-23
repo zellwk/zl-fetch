@@ -3,3 +3,5 @@ node_modules
 dist
 /.vscode
 .cache
+# SpecStory explanation file
+.specstory/.what-is-this.md
