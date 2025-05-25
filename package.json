@@ -27,12 +27,12 @@
     "url": "git+https://github.com/zellwk/zl-fetch.git"
   },
   "scripts": {
-    "build": "rollup -c",
     "dev": "rm -rf dist && rollup -c -w",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
-    "types": "rm src/*.d.ts; npx -p typescript tsc ./src/*.js --declaration --allowJs --emitDeclarationOnly --outDir dist",
+    "types": "rm dist/*.d.ts; npx -p typescript tsc ./src/*.js --declaration --allowJs --emitDeclarationOnly --outDir dist",
+    "build": "rollup -c && npm run types",
     "release": "npm run build && np"
   },
   "author": "Zell Liew <zellwk@gmail.com>",
