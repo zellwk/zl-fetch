@@ -6,9 +6,10 @@ It's features are as follows:
 
 - Quality of life improvements over the native `fetch` function
 
-  - [Use the response right away](#quick-start) without using `response.json()`, `response.text()`, or `response.blob()`
+  - [Use the response right away](#quick-start) without using `response.json()`, `response.text()`, or `response.blob()`.
   - [Promise-like error handling](#error-handling) — all 400 and 500 errors are directed into the `catch` block automatically.
   - [Easy error handling when using `await`](#easy-error-handling-when-using-asyncawait) — errors can be returned so you don't have to write a `try/catch` block.
+  - [Built-in abort functionality](#aborting-the-request)
 
 - Additional improvements over the native `fetch` function
   - `Content-Type` headers are set [automatically](#content-type-generation-based-on-body-content) based on the `body` content.
@@ -20,6 +21,32 @@ It's features are as follows:
   - [Create instances to hold url and options](#creating-a-zlfetch-instance) so you don't have to repeat yourself.
 
 Note: zlFetch is a ESM library since `v4.0.0`.
+
+# Table of Contents
+
+- [Installing zlFetch](#installing-zlfetch)
+  - [Through npm (recommended)](#through-npm-recommended)
+  - [Through browsers](#through-browsers)
+- [Quick Start](#quick-start)
+  - [Shorthand methods for GET, POST, PUT, PATCH, and DELETE](#shorthand-methods-for-get-post-put-patch-and-delete)
+  - [Supported response types](#supported-response-types)
+  - [The response contains all the data you may need](#the-response-contains-all-the-data-you-may-need)
+  - [Debugging the request](#debugging-the-request)
+  - [Error Handling](#error-handling)
+  - [Easy error handling when using `async`/`await`](#easy-error-handling-when-using-asyncawait)
+- [Streaming](#streaming)
+  - [Server-Sent Events (SSE)](#server-sent-events-sse)
+  - [Other Streams](#other-streams)
+  - [With `Transfer-Encoding: chunked`](#with-transfer-encoding-chunked)
+- [Aborting the request](#aborting-the-request)
+  - [Basic Usage](#basic-usage)
+  - [With async/await](#with-asyncawait)
+- [Helpful Features](#helpful-features)
+  - [Query string helpers](#query-string-helpers)
+  - [`Content-Type` generation based on `body` content](#content-type-generation-based-on-body-content)
+  - [Authorization header helpers](#authorization-header-helpers)
+  - [Creating a zlFetch Instance](#creating-a-zlfetch-instance)
+  - [Custom response handler](#custom-response-handler)
 
 ## Installing zlFetch
 
@@ -36,7 +63,7 @@ Then you can use it by importing it in your JavaScript file.
 import zlFetch from 'zl-fetch'
 ```
 
-### Using `zlFetch` without `npm`:
+### Through browsers
 
 You can import zlFetch directly into JavaScript through a CDN.
 
@@ -60,42 +87,6 @@ zlFetch('url')
   .catch(error => console.log(error))
 ```
 
-### Aborting Requests
-
-You can abort any request using the `abort()` method. This is useful for canceling long-running requests or when you need to stop a request based on user interaction.
-
-```js
-// Start a request
-const request = zlFetch('url')
-
-// Abort the request
-request.abort()
-
-// The request will be rejected with an AbortError
-request.catch(error => {
-  if (error.name === 'AbortError') {
-    console.log('Request was aborted')
-  }
-})
-```
-
-You can also use it with async/await:
-
-```js
-try {
-  const request = zlFetch('url')
-  
-  // Abort after 5 seconds
-  setTimeout(() => request.abort(), 5000)
-  
-  const response = await request
-} catch (error) {
-  if (error.name === 'AbortError') {
-    console.log('Request was aborted')
-  }
-}
-```
-
 ### Shorthand methods for GET, POST, PUT, PATCH, and DELETE
 
 zlFetch contains shorthand methods for these common REST methods so you can use them quickly.
@@ -111,6 +102,8 @@ zlFetch.delete(/* some-url */)
 ### Supported response types
 
 zlFetch supports `json`, `text`, and `blob` response types so you don't have to write `response.json()`, `response.text()` or `response.blob()`.
+
+It also supports streams. See [streaming](##streaming) for a better understanding of how this works.
 
 Other response types are not supported right now. If you need to support other response types, consider using your own [response handler](#custom-response-handler)
 
@@ -174,7 +167,128 @@ fetch('some-url')
 zlFetch lets you pass all errors into an `errors` object. You can do this by adding a `returnError` option. This is useful when you work a lot with `async/await`.
 
 ```js
-const { response, error } = await zlFetch('some-url', { returnError: true })
+const { response, error } = await zlFetch('some-url', { 
+  returnError: true 
+})
+```
+
+## Streaming 
+
+zlFetch supports streaming in `v6.2.0`. It detects streams automatically and provides a readable stream helper to decode the stream. 
+
+Streams are detected when: 
+
+- `Content-Type` header is `text/event-stream`
+- Header contains `Transfer-Encoding: chunked`
+- There is no `Content-Length` header 
+
+The decoded stream is stored inside `response.body` so you can simply loop through it to get your chunks. Below are a few caveats you need to know of because of the varying streaming implementations from various servers. 
+
+### Server-Sent Events (SSE)
+
+zlFetch decodes the request body for you automatically for server-sent events. Just loop through the `request.body` to get your chunks. 
+
+```js
+const response = await zlFetch('/sse-endpoint')
+
+for await (const chunk of response.body) {
+  // Do something with chunk
+  chunks.push(chunk)
+}
+```
+
+### Other Streams 
+
+zlFetch decodes the stream for you automatically so you can just loop through the `request.body` to get your chunks. 
+
+```js
+const response = await zlFetch('/sse-endpoint')
+
+for await (const chunk of response.body) {
+  // Do something with chunk
+  chunks.push(chunk)
+}
+```
+
+If you're using zlFetch through a browser, you can use a `readStream` helper to decode the chunk before using it. 
+
+```js
+import zlFetch, { readStream} from 'zl-fetch'
+const response = await zlFetch('/endpoint')
+const body = readStream(response)
+
+for await (const chunk of body) {
+  // Do something with chunk
+  chunks.push(chunk)
+}
+```
+
+### With `Transfer-Encoding: chunked`
+
+The `Transfer-Encoding` header will only be sent to servers. So if you're using zlFetch through a server, just loop through the `request.body` to get your chunks. 
+
+On browsers, use the `readStream` helper mentioned above. 
+
+<!-- 
+### Progress Tracking
+
+You can track download progress by monitoring the stream:
+
+```js
+const response = await zlFetch('large-file')
+const contentLength = response.headers.get('content-length')
+let receivedLength = 0
+
+while (true) {
+  const { done, value } = await reader.read()
+  if (done) break
+  
+  receivedLength += value.length
+  const progress = (receivedLength / contentLength) * 100
+  console.log(`Download progress: ${progress.toFixed(2)}%`)
+}
+``` -->
+
+## Aborting the request
+
+You can abort a request — both normal and streams — using the same `abort()` method. This is useful for:
+
+- Canceling long-running requests
+- Stopping requests when a user navigates away
+- Implementing request timeouts
+- Canceling requests when new data is needed
+
+### Basic Usage
+
+```js
+const request = zlFetch('endpoint')
+
+// Aborts the request
+request.abort()
+
+// Handle the abort
+request.catch(error => {
+  if (error.name === 'AbortError') {
+    console.log('Request was aborted')
+  }
+})
+```
+
+### With async/await
+
+You can also handle aborts when using async/await:
+
+```js
+try {
+  const request = zlFetch('endpoint')
+  setTimeout(() => request.abort(), 5000)
+
+  const response = await request
+} catch (error) {
+  if (error.name === 'AbortError') {
+    console.log('Request was aborted')
+  }
+}
 ```
 
 ## Helpful Features

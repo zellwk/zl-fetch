@@ -11,7 +11,7 @@
   ],
   "exports": {
     ".": {
-      "import": "./dist/index.mjs",
+      "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     }
   },
@@ -38,10 +38,13 @@
   "author": "Zell Liew <zellwk@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "statuses": "^2.0.1",
-    "@splendidlabz/utils": "file:../../@splendidlabz/packages/utils"
+    "@splendidlabz/utils": "^1.5.0-beta.6",
+    "statuses": "^2.0.1"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^15.2.3",
     "@splendidlabz/eslint-config": "^2.0.0-alpha.1",
     "@splendidlabz/prettier-config": "^1.0.5-alpha.1",
     "@vitest/ui": "^3.1.4",
@@ -49,13 +52,10 @@
     "express": "^5.1.0",
     "form-data": "^4.0.2",
     "jsdom": "^26.1.0",
+    "multer": "^2.0.0",
     "np": "^10.2.0",
     "portastic": "^1.0.1",
     "rollup": "^4.12.0",
-    "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-commonjs": "^25.0.7",
-    "@rollup/plugin-terser": "^0.4.4",
-    "@rollup/plugin-json": "^6.1.0",
     "vite": "^6.3.5",
     "vitest": "^3.1.4"
   }

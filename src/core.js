@@ -23,6 +23,7 @@ export function coreFetch(url, options) {
   const signal = abortController.signal
   const instance = fetchInstance({ url, ...options, signal })
   instance.abort = () => abortController.abort()
+  
   return instance
 }
 // ========================
@@ -44,6 +45,10 @@ async function fetchInstance(options) {
   // Performs the fetch request
   return fetch(requestOptions.url, requestOptions)
     .then(response => handleResponse(response, options))
+    .then(response => {
+      if (options.signal) return response
+      return response
+    })
     .then(response => {
       if (!options.debug) return response
       return { ...response, debug: debugHeaders(requestOptions) }
