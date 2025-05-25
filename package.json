@@ -1,6 +1,6 @@
 {
   "name": "zl-fetch",
-  "version": "6.1.1",
+  "version": "6.2.0",
   "description": "A library that makes the Fetch API easy to use",
   "type": "module",
   "prettier": "@splendidlabz/prettier-config",
