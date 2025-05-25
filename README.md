@@ -41,6 +41,7 @@ Note: zlFetch is a ESM library since `v4.0.0`.
 - [Aborting the request](#aborting-the-request)
   - [Basic Usage](#basic-usage)
   - [With async/await](#with-asyncawait)
+  - [Passing in abort controller manually](#passing-in-abort-controller-manually)
 - [Helpful Features](#helpful-features)
   - [Query string helpers](#query-string-helpers)
   - [`Content-Type` generation based on `body` content](#content-type-generation-based-on-body-content)
@@ -261,6 +262,7 @@ You can abort a request — both normal and streams — using the same `abort()`
 ### Basic Usage
 
 ```js
+// With promises
 const request = zlFetch('endpoint')
 
 // Aborts the request
@@ -274,21 +276,51 @@ request.catch(error => {
 })
 ```
 
+We've added the `abort` function to the `.then` call so you can call it while handling the response. 
+
+
+```js
+// With promises
+const request = zlFetch('endpoint')
+  .then(response => {
+    // Aborts the request 
+    response.abort()
+  })
+  .catch(error => {
+    // Handle the abort error
+    if (error.name === 'AbortError') {
+      console.log('Request was aborted')
+    }
+})
+```
+
 ### With async/await
 
 You can also handle aborts when using async/await:
 
 ```js
 try {
-  const request = zlFetch('endpoint')
-  setTimeout(() => request.abort(), 5000)
-
-  const response = await request
+  const response = await zlFetch('endpoint')
+  // Aborts the request
+  response.abort()
 } catch (error) {
   if (error.name === 'AbortError') {
     console.log('Request was aborted')
   }
 }
+```
+
+### Passing in abort controller manually 
+
+If you wish to, you can pass in your abort controller as well. No need to pass the abort `signal` — we'll create a signal from that controller for the abort method. 
+
+
+```js
+const customAbortController = new AbortController()
+const response = await zlFetch('endpoint', { controller: customAbortController })
+
+// Abort the request
+response.abort()
 ```
 
 ## Helpful Features

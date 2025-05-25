@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { getBtoa } from '../../src/createRequestOptions.js'
+import { zlEventSource } from '../../src/event-source.js'
 import { toQueryString } from '../../src/util.js'
 
 export default function tests(environment, config) {
@@ -112,25 +113,49 @@ export default function tests(environment, config) {
 
     it.todo('POST with Form Data')
     it.todo(`POST with Content Type set to 'x-www-form-urlencoded`)
+  })
 
-    it('Can abort requests', async ({ endpoint }) => {
+  // ========================
+  // Aborting Requests
+  // ========================
+  describe(`Aborting Requests (from ${environment})`, context => {
+    it('Can abort via promises', async ({ endpoint }) => {
       const request = zlFetch(`${endpoint}/stream-sse`)
 
       // Aborts request
       request.abort()
+      request.catch(err => {
+        expect(err.name).toBe('AbortError')
+      })
 
-      const error = await request.catch(err => err)
-      expect(error.name).toBe('AbortError')
+      // Ends the test
+      return Promise.resolve()
     })
 
-    it('Can abort requests with timeout', async ({ endpoint }) => {
-      const request = zlFetch(`${endpoint}/stream-sse`)
-      
-      // Abort after 100ms
-      setTimeout(() => request.abort(), 100)
-      
-      const error = await request.catch(err => err)
-      expect(error.name).toBe('AbortError')
+    it('Can abort in then', async ({ endpoint }) => {
+      return zlFetch(`${endpoint}/stream-sse`)
+        .then(response => {
+          response.abort()
+        })
+        .catch(err => {
+          expect(err.name).toBe('AbortError')
+        })
+    })
+
+    it('Can abort via async/await', async ({ endpoint }) => {
+      try {
+        const request = await zlFetch(`${endpoint}/stream-sse`)
+        request.abort()
+      } catch (err) {
+        expect(err.name).toBe('AbortError')
+      }
+    })
+
+    it('Can use custom abort controller', async ({ endpoint }) => {
+      const controller = new AbortController()
+      const request = zlFetch(`${endpoint}/stream-sse`, { controller })
+      controller.abort()
+      await request.catch(err => expect(err.name).toBe('AbortError'))
     })
   })
 
@@ -152,7 +177,6 @@ export default function tests(environment, config) {
       expect(response.body.message).toBe('Error message')
     })
   })
-
 
   // ========================
   // Basic Error Handling
@@ -431,11 +455,32 @@ export default function tests(environment, config) {
   // Streaming Responses
   // ========================
   describe(`Streaming Responses (from ${environment})`, context => {
+    it('Handles Server-Sent Events (SSE) via promises', ({ endpoint }) => {
+      return zlFetch(`${endpoint}/stream-sse`).then(async response => {
+        const chunks = []
+        for await (const chunk of response.body) {
+          expect(chunk).toHaveProperty('data')
+          expect(chunk).toHaveProperty('event')
+          chunks.push(chunk)
+        }
+        expect(chunks.length).toBe(14)
+        expect(typeof chunks[0].data).toBe('object')
+
+        // Every third chunk should be a status event
+        const statusEvents = chunks.filter(chunk => chunk.event === 'status')
+        expect(statusEvents.length).toBeGreaterThan(0)
+        expect(typeof statusEvents[0].data).toBe('string')
+
+        // Last chunk should be a close event
+        const lastChunk = chunks[chunks.length - 1]
+        expect(lastChunk.event).toBe('close')
+      })
+    })
 
     it('Handles Server-Sent Events (SSE)', async ({ endpoint }) => {
       const response = await zlFetch(`${endpoint}/stream-sse`)
       const chunks = []
-      
+
       for await (const chunk of response.body) {
         expect(chunk).toHaveProperty('data')
         expect(chunk).toHaveProperty('event')
@@ -443,42 +488,24 @@ export default function tests(environment, config) {
       }
 
       expect(chunks.length).toBe(14)
-      
-      // Expect data to be parsed from string to object 
+
+      // Expect data to be parsed from string to object
       expect(typeof chunks[0].data).toBe('object')
-      
+
       // Every third chunk should be a status event
       const statusEvents = chunks.filter(chunk => chunk.event === 'status')
       expect(statusEvents.length).toBeGreaterThan(0)
       expect(typeof statusEvents[0].data).toBe('string')
-      
+
       // Last chunk should be a close event
       const lastChunk = chunks[chunks.length - 1]
       expect(lastChunk.event).toBe('close')
     })
 
-    // it.only('Handles SSE client disconnect', async ({ endpoint }) => {
-    //   const response = await zlFetch(`${endpoint}/stream-sse`)
-    //   const chunks = []
-    //   const iterator = response.body[Symbol.asyncIterator]()
-      
-    //   // Read first chunk
-    //   const firstChunk = await iterator.next()
-    //   chunks.push(firstChunk.value)
-      
-    //   // Simulate client disconnect by aborting the request
-    //   response.body.cancel()
-      
-    //   // Try to read more chunks - should end with error message
-    //   const lastChunk = await iterator.next()
-    //   expect(lastChunk.value.event).toBe('error')
-    //   expect(lastChunk.value.data.message).toBe('Client disconnected')
-    // })
-
     it('Handles chunked transfer encoding', async ({ endpoint }) => {
       const response = await zlFetch(`${endpoint}/stream-chunked`)
       const chunks = []
-      
+
       for await (const chunk of response.body) {
         expect(chunk).toMatch(/Chunk/)
         chunks.push(chunk)
@@ -486,7 +513,7 @@ export default function tests(environment, config) {
 
       // Should receive 10 chunks
       expect(chunks.length).toBe(10)
-      
+
       // Each chunk should be a string with the expected format
       chunks.forEach((chunk, index) => {
         expect(typeof chunk).toBe('string')
@@ -494,12 +521,12 @@ export default function tests(environment, config) {
       })
     })
 
-    // Can't test this on node environemnts — even if mimic browser, because node environments will handle chunking. While browser environments will need readStream. 
+    // Can't test this on node environemnts — even if mimic browser, because node environments will handle chunking. While browser environments will need readStream.
     // it.only('Handles regular streams', async ({ endpoint }) => {
     //   const response = await zlFetch(`${endpoint}/stream`)
     //   const stream = readStream(response.body)
     //   const chunks = []
-      
+
     //   for await (const chunk of stream) {
     //     console.log(chunk);
     //     chunks.push(chunk)
@@ -507,15 +534,112 @@ export default function tests(environment, config) {
 
     //   // Should receive 10 chunks
     //   expect(chunks.length).toBe(10)
-      
+
     //   // Each chunk should be a string with the expected format
     //   chunks.forEach((chunk, index) => {
     //     expect(typeof chunk).toBe('string')
     //     expect(chunk).toMatch(new RegExp(`Chunk ${index + 1}:`))
     //   })
     // })
+  })
 
-    
-    // TODO: Abortable fetch 
+  // ========================
+  // EventSource Tests
+  // ========================
+  // Tests don't test with the browser environment, unfortunately.
+  describe(`EventSource (from ${environment})`, context => {
+    it('Receives standard and custom events', async ({ endpoint }) => {
+      const source = zlEventSource(`${endpoint}/stream-sse`, {
+        message(data) {
+          expect(data).toHaveProperty('chunk')
+          expect(data).toHaveProperty('message')
+          expect(typeof data.message).toBe('string')
+        },
+        status(data) {
+          expect(typeof data).toBe('string')
+        },
+      })
+      setTimeout(() => {
+        source.close()
+      }, 200)
+      return source
+    })
+
+    it('Is closable', async ({ endpoint }) => {
+      const chunks = []
+      const source = zlEventSource(`${endpoint}/stream-sse`, {
+        message(data) {
+          chunks.push(data)
+          expect(chunks.length).toBeLessThan(10)
+        },
+        error(error) {
+          expect(error.name).toBe('AbortError')
+        },
+        close(msg) {},
+      })
+      setTimeout(() => {
+        source.close()
+      }, 500)
+      return source
+    })
+
+    // To test retries in the future and see if it works
+    // Not sure if we really really really need a node event stream yet, cos they usually seem to be handled with SDKs already?
+    // it('Node Only: Respects custom retry interval', async ({ endpoint }) => {
+    //   const retryInterval = 1000
+    //   const errors = []
+    //   const startTime = Date.now()
+    //   let reconnectTime
+
+    //   await zlEventSource(`${endpoint}/stream-sse`, {
+    //     retry: retryInterval,
+    //     error: err => {
+    //       errors.push(err)
+    //       reconnectTime = Date.now()
+    //     },
+    //   })
+
+    //   // Simulate an error by closing the server
+    //   await teardown()
+
+    //   // Wait for error and reconnection attempt
+    //   await new Promise(resolve => setTimeout(resolve, retryInterval + 100))
+
+    //   expect(errors.length).toBeGreaterThan(0)
+    //   expect(reconnectTime - startTime).toBeGreaterThanOrEqual(retryInterval)
+    // })
+
+    // it('Handles server-sent retry interval', async ({ endpoint }) => {
+    //   const errors = []
+    //   const startTime = Date.now()
+    //   let reconnectTime
+
+    //   await zlEventSource(`${endpoint}/stream-sse`, {
+    //     error: err => {
+    //       errors.push(err)
+    //       reconnectTime = Date.now()
+    //     },
+    //   })
+
+    //   // Modify server to send retry interval
+    //   server.on('request', (req, res) => {
+    //     if (req.url === '/stream-sse') {
+    //       res.writeHead(200, {
+    //         'Content-Type': 'text/event-stream',
+    //         'Cache-Control': 'no-cache',
+    //         Connection: 'keep-alive',
+    //       })
+    //       res.write('retry: 2000\n\n')
+    //       res.write('data: {"error":"connection lost"}\n\n')
+    //       res.end()
+    //     }
+    //   })
+
+    //   // Wait for error and reconnection attempt
+    //   await new Promise(resolve => setTimeout(resolve, 2100))
+
+    //   expect(errors.length).toBeGreaterThan(0)
+    //   expect(reconnectTime - startTime).toBeGreaterThanOrEqual(2000)
+    // })
   })
 }

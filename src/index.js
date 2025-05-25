@@ -1,5 +1,6 @@
 import { coreFetch } from './core.js'
 import { create } from './create.js'
+export * from './event-source.js'
 export * from './util.js'
 export { create }
 

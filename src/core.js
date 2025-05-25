@@ -28,12 +28,12 @@ import { handleError, handleResponse } from './handleResponse.js'
  * @throws {Error} When the request fails and returnError is false
  */
 
-export function coreFetch(url, options) {
-  const abortController = new AbortController()
-  const signal = abortController.signal
-  const instance = fetchInstance({ url, ...options, signal })
+export function coreFetch(url, options = {}) {
+  const abortController = options.controller || new AbortController()
+  const signal = options.signal || abortController.signal
+  const instance = fetchInstance({ url, ...options, abortController, signal })
   instance.abort = () => abortController.abort()
-  
+
   return instance
 }
 // ========================

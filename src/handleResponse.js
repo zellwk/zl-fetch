@@ -111,6 +111,7 @@ function createOutput({ response, body, options }) {
     response,
     status: response.status,
     statusText: response.statusText,
+    abort: options.abortController.abort.bind(options.abortController)
   }
 
   // Resolves if successful response
