@@ -1,38 +1,6 @@
-import zlFetch, { readStream } from './dist/index.js';
 
-function wait(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
-}
-
-const responseBasic = await zlFetch('http://localhost:3000/')
-const responseSSE = await zlFetch('http://localhost:3000/stream-sse')
-
-console.log('=============================');
-console.log('BEGIN READING CHUNKS?');
-console.log('=============================');
-
-// const responseChunked = await zlFetch('http://localhost:3000/stream-chunked')
-
-// for await (const chunk of responseChunked.body) {
-//   console.log('Chunk:', chunk);
-// }
-
-const responseStream = await zlFetch('http://localhost:3000/stream')
-const t = readStream(responseStream)
-
-for await (const chunk of t) {
-  console.log('Chunk:', chunk);
-}
-
-
-// const t = readStream(response2)
-
-// for await (const a of t) {
-//   console.log(a);
-// }
-
-// console.log(t);
-
+// Initial workings for Event Source. 
+// NOT DONE YET.
 
 // zlEventSource('http://localhost:3000/stream-sse')
 
