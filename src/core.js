@@ -1,4 +1,4 @@
-import createRequestOptions, { isFormData } from './createRequestOptions.js'
+import createRequestOptions, from './createRequestOptions.js'
 import { handleError, handleResponse } from './handleResponse.js'
 
 /**
@@ -19,7 +19,11 @@ import { handleError, handleResponse } from './handleResponse.js'
  */
 
 export function coreFetch(url, options) {
-  return fetchInstance({ url, ...options })
+  const abortController = new AbortController()
+  const signal = abortController.signal
+  const instance = fetchInstance({ url, ...options, signal })
+  instance.abort = () => abortController.abort()
+  return instance
 }
 // ========================
 // Internal Functions

@@ -4,7 +4,7 @@ import { getBtoa } from '../../src/createRequestOptions.js'
 import { toQueryString } from '../../src/util.js'
 
 export default function tests(environment, config) {
-  const { zlFetch, createZlFetch } = config
+  const { zlFetch, createZlFetch, readStream } = config
 
   // ========================
   // Basic zlFetch
@@ -112,6 +112,26 @@ export default function tests(environment, config) {
 
     it.todo('POST with Form Data')
     it.todo(`POST with Content Type set to 'x-www-form-urlencoded`)
+
+    it('Can abort requests', async ({ endpoint }) => {
+      const request = zlFetch(`${endpoint}/stream-sse`)
+
+      // Aborts request
+      request.abort()
+
+      const error = await request.catch(err => err)
+      expect(error.name).toBe('AbortError')
+    })
+
+    it('Can abort requests with timeout', async ({ endpoint }) => {
+      const request = zlFetch(`${endpoint}/stream-sse`)
+      
+      // Abort after 100ms
+      setTimeout(() => request.abort(), 100)
+      
+      const error = await request.catch(err => err)
+      expect(error.name).toBe('AbortError')
+    })
   })
 
   // ========================
@@ -132,6 +152,7 @@ export default function tests(environment, config) {
       expect(response.body.message).toBe('Error message')
     })
   })
+
 
   // ========================
   // Basic Error Handling
@@ -404,5 +425,97 @@ export default function tests(environment, config) {
       expect(response.body.message).toBe('haha')
       expect(response.status).toBe(200)
     })
+  })
+
+  // ========================
+  // Streaming Responses
+  // ========================
+  describe(`Streaming Responses (from ${environment})`, context => {
+
+    it('Handles Server-Sent Events (SSE)', async ({ endpoint }) => {
+      const response = await zlFetch(`${endpoint}/stream-sse`)
+      const chunks = []
+      
+      for await (const chunk of response.body) {
+        expect(chunk).toHaveProperty('data')
+        expect(chunk).toHaveProperty('event')
+        chunks.push(chunk)
+      }
+
+      expect(chunks.length).toBe(14)
+      
+      // Expect data to be parsed from string to object 
+      expect(typeof chunks[0].data).toBe('object')
+      
+      // Every third chunk should be a status event
+      const statusEvents = chunks.filter(chunk => chunk.event === 'status')
+      expect(statusEvents.length).toBeGreaterThan(0)
+      expect(typeof statusEvents[0].data).toBe('string')
+      
+      // Last chunk should be a close event
+      const lastChunk = chunks[chunks.length - 1]
+      expect(lastChunk.event).toBe('close')
+    })
+
+    // it.only('Handles SSE client disconnect', async ({ endpoint }) => {
+    //   const response = await zlFetch(`${endpoint}/stream-sse`)
+    //   const chunks = []
+    //   const iterator = response.body[Symbol.asyncIterator]()
+      
+    //   // Read first chunk
+    //   const firstChunk = await iterator.next()
+    //   chunks.push(firstChunk.value)
+      
+    //   // Simulate client disconnect by aborting the request
+    //   response.body.cancel()
+      
+    //   // Try to read more chunks - should end with error message
+    //   const lastChunk = await iterator.next()
+    //   expect(lastChunk.value.event).toBe('error')
+    //   expect(lastChunk.value.data.message).toBe('Client disconnected')
+    // })
+
+    it('Handles chunked transfer encoding', async ({ endpoint }) => {
+      const response = await zlFetch(`${endpoint}/stream-chunked`)
+      const chunks = []
+      
+      for await (const chunk of response.body) {
+        expect(chunk).toMatch(/Chunk/)
+        chunks.push(chunk)
+      }
+
+      // Should receive 10 chunks
+      expect(chunks.length).toBe(10)
+      
+      // Each chunk should be a string with the expected format
+      chunks.forEach((chunk, index) => {
+        expect(typeof chunk).toBe('string')
+        expect(chunk).toMatch(new RegExp(`Chunk ${index + 1}:`))
+      })
+    })
+
+    // Can't test this on node environemnts — even if mimic browser, because node environments will handle chunking. While browser environments will need readStream. 
+    // it.only('Handles regular streams', async ({ endpoint }) => {
+    //   const response = await zlFetch(`${endpoint}/stream`)
+    //   const stream = readStream(response.body)
+    //   const chunks = []
+      
+    //   for await (const chunk of stream) {
+    //     console.log(chunk);
+    //     chunks.push(chunk)
+    //   }
+
+    //   // Should receive 10 chunks
+    //   expect(chunks.length).toBe(10)
+      
+    //   // Each chunk should be a string with the expected format
+    //   chunks.forEach((chunk, index) => {
+    //     expect(typeof chunk).toBe('string')
+    //     expect(chunk).toMatch(new RegExp(`Chunk ${index + 1}:`))
+    //   })
+    // })
+
+    
+    // TODO: Abortable fetch 
   })
 }

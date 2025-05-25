@@ -60,6 +60,42 @@ zlFetch('url')
   .catch(error => console.log(error))
 ```
 
+### Aborting Requests
+
+You can abort any request using the `abort()` method. This is useful for canceling long-running requests or when you need to stop a request based on user interaction.
+
+```js
+// Start a request
+const request = zlFetch('url')
+
+// Abort the request
+request.abort()
+
+// The request will be rejected with an AbortError
+request.catch(error => {
+  if (error.name === 'AbortError') {
+    console.log('Request was aborted')
+  }
+})
+```
+
+You can also use it with async/await:
+
+```js
+try {
+  const request = zlFetch('url')
+  
+  // Abort after 5 seconds
+  setTimeout(() => request.abort(), 5000)
+  
+  const response = await request
+} catch (error) {
+  if (error.name === 'AbortError') {
+    console.log('Request was aborted')
+  }
+}
+```
+
 ### Shorthand methods for GET, POST, PUT, PATCH, and DELETE
 
 zlFetch contains shorthand methods for these common REST methods so you can use them quickly.

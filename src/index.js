@@ -1,12 +1,11 @@
-export * from './util.js'
-
 import { coreFetch } from './core.js'
-
 import { create } from './create.js'
+export * from './util.js'
+export { create }
 
-let fn = coreFetch
-
-export default fn
+const fn = coreFetch
 const createZlFetch = create
 
-export { create, createZlFetch }
+
+export default fn
+export { createZlFetch }

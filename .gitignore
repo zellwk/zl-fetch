@@ -1,6 +1,7 @@
+node_modules/
+dist/
+.DS_Store
 *.log
-node_modules
-dist
 /.vscode
 .cache
 # SpecStory explanation file
