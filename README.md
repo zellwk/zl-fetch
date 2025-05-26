@@ -39,10 +39,6 @@ Note: zlFetch is a ESM library since `v4.0.0`.
   - [Server-Sent Events (SSE)](#server-sent-events-sse)
   - [`Transfer-Encoding: chunked`](#transfer-encoding-chunked)
   - [Other Streams](#other-streams)
-- [Streaming with event source](#streaming-with-event-source)
-  - [Listen to any event](#listen-to-any-event)
-  - [Using the Fetch Version](#using-the-fetch-version)
-    - [Setting Retry Interval](#setting-retry-interval)
 - [Aborting the request](#aborting-the-request)
   - [Basic Usage](#basic-usage)
   - [With async/await](#with-asyncawait)
@@ -53,6 +49,11 @@ Note: zlFetch is a ESM library since `v4.0.0`.
   - [Authorization header helpers](#authorization-header-helpers)
   - [Creating a zlFetch Instance](#creating-a-zlfetch-instance)
   - [Custom response handler](#custom-response-handler)
+- [Streaming with event source](#streaming-with-event-source)
+  - [Listen to any event](#listen-to-any-event)
+  - [Using the Fetch Version](#using-the-fetch-version)
+    - [Setting Retry Interval](#setting-retry-interval)
+  - [Closing an event source](#closing-an-event-source)
 
 ## Installing zlFetch
 
@@ -245,67 +246,6 @@ while (true) {
   console.log(`Download progress: ${progress.toFixed(2)}%`)
 }
 ``` -->
-
-## Streaming with event source 
-
-We created a small wrapper around [EventSource](https://developer.mozilla.org/en-US/docs/Web/API/EventSource) for streaming with SSE. 
-
-On the browser, we use the Browser's Event Source — with a few addons — as the default. On the server, we wrap zlFetch with a retry functionality to make it similar to the Browser version. 
-
-```js
-import { zlEventSource } from 'zl-fetch'
-const source = zlEventSource(url, options)
-```
-
-### Listen to any event 
-
-zlEventSource lets you listen to any events by providing the event as a callback in `options`. Custom events are also supported. This provides a simpler API for usage. 
-
-```js
-import { zlEventSource } from 'zl-fetch'
-const source = zlEventSource(url, {
-  open: data => console.log(data),
-  message: data => console.log(data),
-  ping: data => console.log(data), // This is a custom event
-  close: data => console.log(data),
-})
-```
-
-### Using the Fetch Version 
-
-The browser's event source capabilities are quite limited — you can only send a `GET` request. If you want to be able to send `POST` requests, add `Authorization`, the best method is to use the wrapped zlFetch version. 
-
-To use this, just set `useFetch` to true. 
-
-On servers, we automatically use the wrapped zlFetch version. 
-
-```js
-import { zlEventSource } from 'zl-fetch'
-const source = zlEventSource(url, { useFetch: true }, fetchOptions)
-```
-
-You can continue monitoring for events with the event callbacks. 
-
-```js
-import { zlEventSource } from 'zl-fetch'
-const source = zlEventSource(url, { 
-  useFetch: true, 
-  message: data => console.log(data)
-}, fetchOptions)
-```
-
-#### Setting Retry Interval 
-
-Retry intervals will be set according to the `retry` property sent in the SSE response. If it's not present, you can adjust the retry interval with the `retry` property. 
-
-```js
-import { zlEventSource } from 'zl-fetch'
-const source = zlEventSource(url, { 
-  useFetch: true, 
-  retry: 3000, // In milliseconds
-}, fetchOptions)
-```
-
 ## Aborting the request
 
 You can abort a request — both normal and streams — using the same `abort()` method. This is useful for:
@@ -555,4 +495,75 @@ const response = await zlFetch('url', {
   customResponseParser: true,
 })
 const data = await response.arrayBuffer()
+```
+
+
+
+## Streaming with event source 
+
+We created a small wrapper around [EventSource](https://developer.mozilla.org/en-US/docs/Web/API/EventSource) for streaming with SSE. 
+
+On the browser, we use the Browser's Event Source — with a few addons — as the default. On the server, we wrap zlFetch with a retry functionality to make it similar to the Browser version. 
+
+```js
+import { zlEventSource } from 'zl-fetch'
+const source = zlEventSource(url, options)
+```
+
+### Listen to any event 
+
+zlEventSource lets you listen to any events by providing the event as a callback in `options`. Custom events are also supported. This provides a simpler API for usage. 
+
+```js
+import { zlEventSource } from 'zl-fetch'
+const source = zlEventSource(url, {
+  open: data => console.log(data),
+  message: data => console.log(data),
+  ping: data => console.log(data), // This is a custom event
+  close: data => console.log(data),
+})
+```
+
+### Using the Fetch Version 
+
+The browser's event source capabilities are quite limited — you can only send a `GET` request. If you want to be able to send `POST` requests, add `Authorization`, the best method is to use the wrapped zlFetch version. 
+
+To use this, just set `useFetch` to true. 
+
+On servers, we automatically use the wrapped zlFetch version. 
+
+```js
+import { zlEventSource } from 'zl-fetch'
+const source = zlEventSource(url, { useFetch: true }, fetchOptions)
+```
+
+You can continue monitoring for events with the event callbacks. 
+
+```js
+import { zlEventSource } from 'zl-fetch'
+const source = zlEventSource(url, { 
+  useFetch: true, 
+  message: data => console.log(data)
+}, fetchOptions)
+```
+
+#### Setting Retry Interval 
+
+Retry intervals will be set according to the `retry` property sent in the SSE response. If it's not present, you can adjust the retry interval with the `retry` property. 
+
+```js
+import { zlEventSource } from 'zl-fetch'
+const source = zlEventSource(url, { 
+  useFetch: true, 
+  retry: 3000, // In milliseconds
+}, fetchOptions)
+```
+
+### Closing an event source 
+
+`zlEventSource` will close automatically if the server sents a `close` event. If you wish to terminate the session earlier, you can call the `close` method on the event source. 
+
+```js
+const source = zlEventSource(url)
+source.close() // Terminates the event source connection
 ```
