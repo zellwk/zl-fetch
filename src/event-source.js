@@ -16,7 +16,7 @@ import zlFetch from './index.js'
  * @param {Function} [options.message] - Callback for 'message' events. Receives parsed JSON data or raw text if parsing fails
  * @param {Function} [options.open] - Callback for 'open' events. Receives the Event object
  * @param {Function} [options.error] - Callback for 'error' events. Receives parsed JSON data or raw text if parsing fails
- * @param {Function} [options.close] - Callback for 'close' events. Called when the connection is closed
+ * @param {Function} [options.close] - Callback for 'close' events. Called when the connection is closed, either by the server sending a 'close' event or manually. Receives parsed JSON data from the close event if available
  * @param {Function} [options.*] - Callbacks for any custom events. Each callback receives parsed JSON data or raw text if parsing fails
  * @returns {EventSource|Promise<ReadableStream>} In browser: EventSource instance that can be used to close the connection. In Node.js: Promise that resolves to a ReadableStream
  *
@@ -24,9 +24,9 @@ import zlFetch from './index.js'
  * // Basic usage with standard events
  * const source = zlEventSource('http://localhost:3000/stream', {
  *   message: (data) => console.log('Message:', data),
- *   open: () => console.log('Connected'),
+ *   open: (data) => console.log('Connected'),
  *   error: (error) => console.log('Error:', error),
- *   close: () => console.log('Connection closed')
+ *   close: (data) => console.log('Connection closed:', data)
  * })
  *
  * // Close connection when done (browser only)
