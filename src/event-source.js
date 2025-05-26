@@ -12,19 +12,21 @@ import zlFetch from './index.js'
  *
  * @param {string} url - The URL to connect to for the EventSource
  * @param {Object} options - Configuration options
+ * @param {boolean} [options.useFetch=false] - Force using fetch-based implementation even in browser
  * @param {number} [options.retry=3000] - Default retry interval in milliseconds (Node.js only)
  * @param {Function} [options.message] - Callback for 'message' events. Receives parsed JSON data or raw text if parsing fails
- * @param {Function} [options.open] - Callback for 'open' events. Receives the Event object
+ * @param {Function} [options.open] - Callback for 'open' events. Receives parsed JSON data or raw text if parsing fails
  * @param {Function} [options.error] - Callback for 'error' events. Receives parsed JSON data or raw text if parsing fails
  * @param {Function} [options.close] - Callback for 'close' events. Called when the connection is closed, either by the server sending a 'close' event or manually. Receives parsed JSON data from the close event if available
  * @param {Function} [options.*] - Callbacks for any custom events. Each callback receives parsed JSON data or raw text if parsing fails
+ * @param {Object} [fetchOptions] - Options to pass to fetch/zlFetch when using fetch-based implementation
  * @returns {EventSource|Promise<ReadableStream>} In browser: EventSource instance that can be used to close the connection. In Node.js: Promise that resolves to a ReadableStream
  *
  * @example
  * // Basic usage with standard events
  * const source = zlEventSource('http://localhost:3000/stream', {
  *   message: (data) => console.log('Message:', data),
- *   open: (data) => console.log('Connected'),
+ *   open: (data) => console.log('Connected:', data),
  *   error: (error) => console.log('Error:', error),
  *   close: (data) => console.log('Connection closed:', data)
  * })
@@ -40,14 +42,23 @@ import zlFetch from './index.js'
  * })
  *
  * @example
- * // Node.js usage with custom retry interval
- * const stream = await zlEventSource('http://localhost:3000/stream', {
- *   retry: 5000, // 5 second retry interval
- *   message: (data) => console.log('Message:', data)
- * })
+ * // Using fetch implementation with custom options
+ * const stream = await zlEventSource(
+ *   'http://localhost:3000/stream',
+ *   {
+ *     useFetch: true,
+ *     retry: 5000, // 5 second retry interval
+ *     message: (data) => console.log('Message:', data)
+ *   },
+ *   {
+ *     headers: { 'Authorization': 'Bearer token' },
+ *     credentials: 'include'
+ *   }
+ * )
  */
-export function zlEventSource(url, options) {
-  if (typeof EventSource === 'undefined') return zlNodeEventSource(url, options)
+export function zlEventSource(url, { useFetch = false, ...options } = {}, fetchOptions = {}) {
+  if (useFetch || typeof EventSource === 'undefined') 
+    return zlNodeEventSource(url, options, fetchOptions)
   return browserEventSource(url, options)
 }
 
@@ -104,9 +115,13 @@ function browserEventSource(url, { close, ...callbacks } = {}) {
  * @param {Object} options - Configuration options
  * @param {number} [options.retry=3000] - Default retry interval in milliseconds
  * @param {Object} options.callbacks - Object containing event name to callback function mappings
+ * @param {Object} [fetchOptions] - Options to pass to zlFetch for the connection
  * @returns {Promise<ReadableStream>} Promise that resolves to a ReadableStream for the SSE connection
  */
-function zlNodeEventSource(url, { retry = 3000, ...callbacks } = {}) {
+export function zlNodeEventSource(url, 
+  { retry = 3000, ...callbacks } = {}, 
+  fetchOptions = {}
+) {
   let shouldStop = false
   let stream
 
@@ -117,7 +132,7 @@ function zlNodeEventSource(url, { retry = 3000, ...callbacks } = {}) {
   }
 
   async function connect() {
-    stream = zlFetch(url)
+    stream = zlFetch(url, fetchOptions)
     
     return stream
       .then(async stream => {

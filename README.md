@@ -10,6 +10,7 @@ It's features are as follows:
   - [Promise-like error handling](#error-handling) — all 400 and 500 errors are directed into the `catch` block automatically.
   - [Easy error handling when using `await`](#easy-error-handling-when-using-asyncawait) — errors can be returned so you don't have to write a `try/catch` block.
   - [Built-in abort functionality](#aborting-the-request)
+  - Streaming capabilitiies with [pure Fetch](#streaming-with-fetch) and [Event Source](#streaming-with-event-source)
 
 - Additional improvements over the native `fetch` function
   - `Content-Type` headers are set [automatically](#content-type-generation-based-on-body-content) based on the `body` content.
@@ -34,10 +35,14 @@ Note: zlFetch is a ESM library since `v4.0.0`.
   - [Debugging the request](#debugging-the-request)
   - [Error Handling](#error-handling)
   - [Easy error handling when using `async`/`await`](#easy-error-handling-when-using-asyncawait)
-- [Streaming](#streaming)
+- [Streaming with Fetch](#streaming-with-fetch)
   - [Server-Sent Events (SSE)](#server-sent-events-sse)
+  - [`Transfer-Encoding: chunked`](#transfer-encoding-chunked)
   - [Other Streams](#other-streams)
-  - [With `Transfer-Encoding: chunked`](#with-transfer-encoding-chunked)
+- [Streaming with event source](#streaming-with-event-source)
+  - [Listen to any event](#listen-to-any-event)
+  - [Using the Fetch Version](#using-the-fetch-version)
+    - [Setting Retry Interval](#setting-retry-interval)
 - [Aborting the request](#aborting-the-request)
   - [Basic Usage](#basic-usage)
   - [With async/await](#with-asyncawait)
@@ -173,7 +178,7 @@ const { response, error } = await zlFetch('some-url', {
 })
 ```
 
-## Streaming 
+## Streaming with Fetch
 
 zlFetch supports streaming in `v6.2.0`. It detects streams automatically and provides a readable stream helper to decode the stream. 
 
@@ -183,7 +188,7 @@ Streams are detected when:
 - Header contains `Transfer-Encoding: chunked`
 - There is no `Content-Length` header 
 
-The decoded stream is stored inside `response.body` so you can simply loop through it to get your chunks. Below are a few caveats you need to know of because of the varying streaming implementations from various servers. 
+The decoded stream is stored inside `response.body` so you can simply loop through it to get your chunks. Below are a few caveats you need to know because the implementation changes *slightly* due depending on how servers implement streaming. 
 
 ### Server-Sent Events (SSE)
 
@@ -198,37 +203,28 @@ for await (const chunk of response.body) {
 }
 ```
 
-### Other Streams 
+The pure `zlFetch` function might not be the best at handling SSE because it doesn't reconnect automatically when the connection is lost. See [Streaming with Event Source](#streaming-with-event-source) for a recommended approach. 
 
-zlFetch decodes the stream for you automatically so you can just loop through the `request.body` to get your chunks. 
+### `Transfer-Encoding: chunked`
+
+The `Transfer-Encoding` header does not reach the browser the stream will not be decoded automatically. To decode it in the browser, use the `readStream` helper we provided. No need for this extra step if you're sending the Fetch request from a server. 
 
 ```js
+import { readStream } from 'zl-fetch'
+
 const response = await zlFetch('/sse-endpoint')
 
-for await (const chunk of response.body) {
-  // Do something with chunk
-  chunks.push(chunk)
-}
+// For Browsers
+const stream = readStream(response.body)
+for await (const chunk of stream) { /* ...*/ }
+
+// For Servers
+for await (const chunk of response.body) { /* ... */ }
 ```
 
-If you're using zlFetch through a browser, you can use a `readStream` helper to decode the chunk before using it. 
+### Other Streams 
 
-```js
-import zlFetch, { readStream} from 'zl-fetch'
-const response = await zlFetch('/endpoint')
-const body = readStream(response)
-
-for await (const chunk of body) {
-  // Do something with chunk
-  chunks.push(chunk)
-}
-```
-
-### With `Transfer-Encoding: chunked`
-
-The `Transfer-Encoding` header will only be sent to servers. So if you're using zlFetch through a server, just loop through the `request.body` to get your chunks. 
-
-On browsers, use the `readStream` helper mentioned above. 
+zlFetch detects it's a stream if there is no `Content-Length` header. For these streams, the `Transfer-Encoding: chunked` rules above apply. 
 
 <!-- 
 ### Progress Tracking
@@ -249,6 +245,66 @@ while (true) {
   console.log(`Download progress: ${progress.toFixed(2)}%`)
 }
 ``` -->
+
+## Streaming with event source 
+
+We created a small wrapper around [EventSource](https://developer.mozilla.org/en-US/docs/Web/API/EventSource) for streaming with SSE. 
+
+On the browser, we use the Browser's Event Source — with a few addons — as the default. On the server, we wrap zlFetch with a retry functionality to make it similar to the Browser version. 
+
+```js
+import { zlEventSource } from 'zl-fetch'
+const source = zlEventSource(url, options)
+```
+
+### Listen to any event 
+
+zlEventSource lets you listen to any events by providing the event as a callback in `options`. Custom events are also supported. This provides a simpler API for usage. 
+
+```js
+import { zlEventSource } from 'zl-fetch'
+const source = zlEventSource(url, {
+  open: data => console.log(data),
+  message: data => console.log(data),
+  ping: data => console.log(data), // This is a custom event
+  close: data => console.log(data),
+})
+```
+
+### Using the Fetch Version 
+
+The browser's event source capabilities are quite limited — you can only send a `GET` request. If you want to be able to send `POST` requests, add `Authorization`, the best method is to use the wrapped zlFetch version. 
+
+To use this, just set `useFetch` to true. 
+
+On servers, we automatically use the wrapped zlFetch version. 
+
+```js
+import { zlEventSource } from 'zl-fetch'
+const source = zlEventSource(url, { useFetch: true }, fetchOptions)
+```
+
+You can continue monitoring for events with the event callbacks. 
+
+```js
+import { zlEventSource } from 'zl-fetch'
+const source = zlEventSource(url, { 
+  useFetch: true, 
+  message: data => console.log(data)
+}, fetchOptions)
+```
+
+#### Setting Retry Interval 
+
+Retry intervals will be set according to the `retry` property sent in the SSE response. If it's not present, you can adjust the retry interval with the `retry` property. 
+
+```js
+import { zlEventSource } from 'zl-fetch'
+const source = zlEventSource(url, { 
+  useFetch: true, 
+  retry: 3000, // In milliseconds
+}, fetchOptions)
+```
 
 ## Aborting the request
 
