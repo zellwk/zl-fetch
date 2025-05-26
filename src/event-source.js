@@ -56,8 +56,12 @@ import zlFetch from './index.js'
  *   }
  * )
  */
-export function zlEventSource(url, { useFetch = false, ...options } = {}, fetchOptions = {}) {
-  if (useFetch || typeof EventSource === 'undefined') 
+export function zlEventSource(
+  url,
+  { useFetch = false, ...options } = {},
+  fetchOptions = {},
+) {
+  if (useFetch || typeof EventSource === 'undefined')
     return zlNodeEventSource(url, options, fetchOptions)
   return browserEventSource(url, options)
 }
@@ -87,7 +91,7 @@ function browserEventSource(url, { close, ...callbacks } = {}) {
   }
 
   // Handle close event
-  evtSrc.addEventListener('close', (event) => {
+  evtSrc.addEventListener('close', event => {
     const data = parseJSON(event.data)
 
     // Remove all registered listeners
@@ -118,9 +122,10 @@ function browserEventSource(url, { close, ...callbacks } = {}) {
  * @param {Object} [fetchOptions] - Options to pass to zlFetch for the connection
  * @returns {Promise<ReadableStream>} Promise that resolves to a ReadableStream for the SSE connection
  */
-export function zlNodeEventSource(url, 
-  { retry = 3000, ...callbacks } = {}, 
-  fetchOptions = {}
+export function zlNodeEventSource(
+  url,
+  { retry = 3000, ...callbacks } = {},
+  fetchOptions = {},
 ) {
   let shouldStop = false
   let stream
@@ -133,7 +138,7 @@ export function zlNodeEventSource(url,
 
   async function connect() {
     stream = zlFetch(url, fetchOptions)
-    
+
     return stream
       .then(async stream => {
         for await (const chunk of stream.body) {
