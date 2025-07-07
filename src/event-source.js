@@ -1,5 +1,5 @@
 import { parseJSON } from '@splendidlabz/utils'
-import zlFetch from './index.js'
+import { coreFetch as zlFetch } from './core.js'
 
 /**
  * Creates an EventSource connection with automatic JSON parsing and event handling.
