@@ -120,7 +120,7 @@ export default function tests(environment, config) {
   // ========================
   describe(`Aborting Requests (from ${environment})`, context => {
     it('Can abort via promises', async ({ endpoint }) => {
-      const request = zlFetch(`${endpoint}/stream-sse`)
+      const request = zlFetch(`${endpoint}/stream-sse`, { stream: true })
 
       // Aborts request
       request.abort()
@@ -133,7 +133,7 @@ export default function tests(environment, config) {
     })
 
     it('Can abort in then', async ({ endpoint }) => {
-      return zlFetch(`${endpoint}/stream-sse`)
+      return zlFetch(`${endpoint}/stream-sse`, { stream: true })
         .then(response => {
           response.abort()
         })
@@ -144,7 +144,9 @@ export default function tests(environment, config) {
 
     it('Can abort via async/await', async ({ endpoint }) => {
       try {
-        const request = await zlFetch(`${endpoint}/stream-sse`)
+        const request = await zlFetch(`${endpoint}/stream-sse`, {
+          stream: true,
+        })
         request.abort()
       } catch (err) {
         expect(err.name).toBe('AbortError')
@@ -153,7 +155,10 @@ export default function tests(environment, config) {
 
     it('Can use custom abort controller', async ({ endpoint }) => {
       const controller = new AbortController()
-      const request = zlFetch(`${endpoint}/stream-sse`, { controller })
+      const request = zlFetch(`${endpoint}/stream-sse`, {
+        controller,
+        stream: true,
+      })
       controller.abort()
       await request.catch(err => expect(err.name).toBe('AbortError'))
     })
@@ -456,29 +461,31 @@ export default function tests(environment, config) {
   // ========================
   describe(`Streaming Responses (from ${environment})`, context => {
     it('Handles Server-Sent Events (SSE) via promises', ({ endpoint }) => {
-      return zlFetch(`${endpoint}/stream-sse`).then(async response => {
-        const chunks = []
-        for await (const chunk of response.body) {
-          expect(chunk).toHaveProperty('data')
-          expect(chunk).toHaveProperty('event')
-          chunks.push(chunk)
-        }
-        expect(chunks.length).toBe(14)
-        expect(typeof chunks[0].data).toBe('object')
+      return zlFetch(`${endpoint}/stream-sse`, { stream: true }).then(
+        async response => {
+          const chunks = []
+          for await (const chunk of response.body) {
+            expect(chunk).toHaveProperty('data')
+            expect(chunk).toHaveProperty('event')
+            chunks.push(chunk)
+          }
+          expect(chunks.length).toBe(14)
+          expect(typeof chunks[0].data).toBe('object')
 
-        // Every third chunk should be a status event
-        const statusEvents = chunks.filter(chunk => chunk.event === 'status')
-        expect(statusEvents.length).toBeGreaterThan(0)
-        expect(typeof statusEvents[0].data).toBe('string')
+          // Every third chunk should be a status event
+          const statusEvents = chunks.filter(chunk => chunk.event === 'status')
+          expect(statusEvents.length).toBeGreaterThan(0)
+          expect(typeof statusEvents[0].data).toBe('string')
 
-        // Last chunk should be a close event
-        const lastChunk = chunks[chunks.length - 1]
-        expect(lastChunk.event).toBe('close')
-      })
+          // Last chunk should be a close event
+          const lastChunk = chunks[chunks.length - 1]
+          expect(lastChunk.event).toBe('close')
+        },
+      )
     })
 
     it('Handles Server-Sent Events (SSE)', async ({ endpoint }) => {
-      const response = await zlFetch(`${endpoint}/stream-sse`)
+      const response = await zlFetch(`${endpoint}/stream-sse`, { stream: true })
       const chunks = []
 
       for await (const chunk of response.body) {
@@ -503,7 +510,9 @@ export default function tests(environment, config) {
     })
 
     it('Handles chunked transfer encoding', async ({ endpoint }) => {
-      const response = await zlFetch(`${endpoint}/stream-chunked`)
+      const response = await zlFetch(`${endpoint}/stream-chunked`, {
+        stream: true,
+      })
       const chunks = []
 
       for await (const chunk of response.body) {

@@ -137,7 +137,7 @@ export function zlNodeEventSource(
   }
 
   async function connect() {
-    stream = zlFetch(url, fetchOptions)
+    stream = zlFetch(url, { ...fetchOptions, stream: true })
 
     return stream
       .then(async stream => {
