@@ -1,4 +1,4 @@
-import { parseSSE } from '@splendidlabz/utils';
+import { parseSSE } from '@splendidlabz/utils'
 
 /**
  * Handles the response from a fetch request and parses it according to content type
@@ -11,7 +11,7 @@ export function handleResponse(response, options) {
   // Lets user use custom response parser because some people want to do so.
   // See https://github.com/zellwk/zl-fetch/issues/2
   if (options?.customResponseParser) return response
-  const type = getResponseType(response)
+  const type = getResponseType(response, options)
   return parseResponse(response, { ...options, type })
 }
 
@@ -38,22 +38,24 @@ export function handleError(error) {
  * @returns {string|null} Returns the response type ('json', 'text', 'blob', 'formData', 'sse', 'chunked', 'stream') or null for 204 No Content
  * @throws {Error} Throws an error if the content-type is not supported
  */
-function getResponseType(response) {
+function getResponseType(response, options) {
   const contentType = response.headers.get('content-type')
   const contentLength = response.headers.get('content-length')
   const transferEncoding = response.headers.get('Transfer-Encoding')
 
   if (!contentType) return null // Handles 204 No Content
 
-  // Streaming response types
-  if (contentType === 'text/event-stream') return 'sse'
-  if (transferEncoding === 'chunked') return 'chunked'
-  if (!contentLength) return 'stream'
-
-  if (contentType.includes('json')) return 'json'
-  if (contentType.includes('text')) return 'text'
-  if (contentType.includes('blob')) return 'blob'
-  if (contentType.includes('x-www-form-urlencoded')) return 'formData'
+  if (options.stream === true) {
+    // Streaming response types
+    if (contentType === 'text/event-stream') return 'sse'
+    if (transferEncoding === 'chunked') return 'chunked'
+    if (!contentLength) return 'stream'
+  } else {
+    if (contentType.includes('json')) return 'json'
+    if (contentType.includes('text')) return 'text'
+    if (contentType.includes('blob')) return 'blob'
+    if (contentType.includes('x-www-form-urlencoded')) return 'formData'
+  }
 
   // Need to check for FormData, Blob and ArrayBuffer content types
   throw new Error(`zlFetch does not support content-type ${contentType} yet`)
@@ -81,7 +83,7 @@ async function parseResponse(response, options) {
   }
 
   if (options.type === 'sse') {
-    const body = handleSSEStream(response) 
+    const body = handleSSEStream(response)
     return createOutput({ response, body, options })
   }
 
@@ -111,7 +113,7 @@ function createOutput({ response, body, options }) {
     response,
     status: response.status,
     statusText: response.statusText,
-    abort: options.abortController.abort.bind(options.abortController)
+    abort: options.abortController.abort.bind(options.abortController),
   }
 
   // Resolves if successful response
@@ -215,7 +217,7 @@ function handleSSEStream(response) {
       } finally {
         controller.close()
       }
-    }
+    },
   })
 }
 
@@ -236,8 +238,11 @@ export function handleChunkedStream(response) {
           if (done) break
 
           // Decode the chunk
-          let chunk = typeof value === 'string' ? value : decoder.decode(value, { stream: true })
-          
+          let chunk =
+            typeof value === 'string'
+              ? value
+              : decoder.decode(value, { stream: true })
+
           chunk = chunk.trim()
           try {
             chunk = JSON.parse(chunk)
@@ -251,7 +256,6 @@ export function handleChunkedStream(response) {
       } finally {
         controller.close()
       }
-    }
+    },
   })
 }
-
