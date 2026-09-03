@@ -1,4 +1,4 @@
-// @vitest-environment jsdom
+// @vitest-environment ./test/env/jsdom-fetch.js
 import { afterEach, beforeEach } from 'vitest'
 import zlFetch, { createZlFetch, readStream } from '../src/index.js'
 import { setup, teardown } from './helpers/setup.js'
