@@ -39,6 +39,7 @@ Note: zlFetch is a ESM library since `v4.0.0`.
     - [Easy error handling when using `async`/`await`](#easy-error-handling-when-using-asyncawait)
   - [Streaming with Fetch](#streaming-with-fetch)
     - [Server-Sent Events (SSE)](#server-sent-events-sse)
+    - [NDJSON](#ndjson)
     - [`Transfer-Encoding: chunked`](#transfer-encoding-chunked)
     - [Other Streams](#other-streams)
   - [Aborting the request](#aborting-the-request)
@@ -110,11 +111,17 @@ zlFetch.delete(/* some-url */)
 
 ### Supported response types
 
-zlFetch supports `json`, `text`, and `blob` response types so you don't have to write `response.json()`, `response.text()` or `response.blob()`.
+zlFetch reads the `Content-Type` header and parses the body for you, so you don't have to write `response.json()`, `response.text()` or `response.blob()`.
+
+- Anything with `json` in it — including `application/problem+json` — is parsed as JSON.
+- Anything with `ndjson` or `jsonl` in it becomes an array of parsed lines. See [NDJSON](#ndjson).
+- Anything with `text` in it — including `text/csv` — comes back as a string.
+- `x-www-form-urlencoded` becomes a plain object.
+- Everything else comes back as a `Blob`, which reads any content type.
+
+A `204 No Content` response gives you a `null` body.
 
 It also supports streams. See [streaming](##streaming) for a better understanding of how this works.
-
-Other response types are not supported right now. If you need to support other response types, consider using your own [response handler](#custom-response-handler)
 
 ### The response contains all the data you may need
 
@@ -187,7 +194,8 @@ zlFetch supports streaming in `v6.2.0`. It detects streams when you pass in `str
 
 The following can be detected as streams:
 
-- `Content-Type` header is `text/event-stream`
+- `Content-Type` header contains `text/event-stream`
+- `Content-Type` header contains `ndjson` or `jsonl`
 - Header contains `Transfer-Encoding: chunked`
 - There is no `Content-Length` header
 
@@ -207,6 +215,31 @@ for await (const chunk of response.body) {
 ```
 
 The pure `zlFetch` function might not be the best at handling SSE because it doesn't reconnect automatically when the connection is lost. See [Streaming with Event Source](#streaming-with-event-source) for a recommended approach.
+
+### NDJSON
+
+Newline-delimited JSON — `application/x-ndjson`, `application/ndjson`, `application/jsonl` — is detected on its own, without `stream: true`. Each line is parsed on its own, and a line that isn't JSON comes back as text.
+
+Without `stream: true` you get every line at once, as an array.
+
+```js
+const response = await zlFetch('/ndjson-endpoint')
+
+// [{ a: 1 }, { a: 2 }, { a: 3 }]
+console.log(response.body)
+```
+
+With `stream: true` you get the lines as they arrive.
+
+```js
+const response = await zlFetch('/ndjson-endpoint', { stream: true })
+
+for await (const chunk of response.body) {
+  // Do something with chunk
+}
+```
+
+A JSON object split across two chunks is held until the rest of it arrives, so you never get half an object.
 
 ### `Transfer-Encoding: chunked`
 
