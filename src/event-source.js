@@ -10,6 +10,11 @@ import { coreFetch as zlFetch } from './core.js'
  * - Server can override retry interval by sending `retry: <milliseconds>`
  * - Retry interval persists until changed by server or connection is closed
  *
+ * Every option other than `useFetch` and `retry` is a callback named for the event it handles.
+ * `message`, `open`, `error` and `close` are the standard ones and are listed below; any other
+ * name listens for a custom event the server sends under that name. Each callback receives
+ * parsed JSON data, or the raw text if parsing fails.
+ *
  * @param {string} url - The URL to connect to for the EventSource
  * @param {Object} options - Configuration options
  * @param {boolean} [options.useFetch=false] - Force using fetch-based implementation even in browser
@@ -18,7 +23,6 @@ import { coreFetch as zlFetch } from './core.js'
  * @param {Function} [options.open] - Callback for 'open' events. Receives parsed JSON data or raw text if parsing fails
  * @param {Function} [options.error] - Callback for 'error' events. Receives parsed JSON data or raw text if parsing fails
  * @param {Function} [options.close] - Callback for 'close' events. Called when the connection is closed, either by the server sending a 'close' event or manually. Receives parsed JSON data from the close event if available
- * @param {Function} [options.*] - Callbacks for any custom events. Each callback receives parsed JSON data or raw text if parsing fails
  * @param {Object} [fetchOptions] - Options to pass to fetch/zlFetch when using fetch-based implementation
  * @returns {EventSource|Promise<ReadableStream>} In browser: EventSource instance that can be used to close the connection. In Node.js: Promise that resolves to a ReadableStream
  *
@@ -56,6 +60,7 @@ import { coreFetch as zlFetch } from './core.js'
  *   }
  * )
  */
+// The custom-event callbacks stay in the description above rather than becoming a `@param`: JSDoc has no wildcard param name, and `[options.*]` compiles to a property with an empty name that `tsc --declaration` emits as `?: Function` — a syntax error in the shipped `.d.ts` that `skipLibCheck` cannot suppress.
 export function zlEventSource(
   url,
   { useFetch = false, ...options } = {},
