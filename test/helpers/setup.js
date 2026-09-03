@@ -1,12 +1,12 @@
+import { once } from 'node:events'
 import app from './server.js'
-import portastic from 'portastic'
 
 export async function setup(ctx) {
-  const ports = await portastic.find({ min: 8000, max: 8080 })
+  // Port 0 lets the OS hand out a free port. Picking one ourselves collided across the spec files, which run in parallel.
+  const server = app.listen(0)
+  await once(server, 'listening')
 
-  // Get Random Port because portastic doesn't seem to detect port closure before, probably because the tests are so short.
-  const port = ports[Math.floor(Math.random() * ports.length)]
-  const server = app.listen(port)
+  const { port } = server.address()
 
   ctx.port = port
   ctx.server = server
@@ -15,4 +15,5 @@ export async function setup(ctx) {
 
 export async function teardown({ server }) {
   server.close()
+  await once(server, 'close')
 }
