@@ -7,7 +7,8 @@
   "sideEffects": false,
   "files": [
     "dist",
-    "src"
+    "src",
+    "CHANGELOG.md"
   ],
   "exports": {
     ".": {
