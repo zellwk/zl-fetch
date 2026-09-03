@@ -1,5 +1,5 @@
 import statuses from 'statuses'
-import { handleChunkedStream } from './handleResponse'
+import { handleChunkedStream } from './handleResponse.js'
 
 /**
  * Converts Form Data into a plain JavaScript object
