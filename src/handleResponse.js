@@ -83,12 +83,12 @@ async function parseResponse(response, options) {
   }
 
   if (options.type === 'sse') {
-    const body = handleSSEStream(response)
+    const body = handleSSEStream(response.body)
     return createOutput({ response, body, options })
   }
 
   if (options.type === 'chunked') {
-    const body = handleChunkedStream(response)
+    const body = handleChunkedStream(response.body)
     return createOutput({ response, body, options })
   }
 
@@ -184,11 +184,11 @@ function getNodeFetchHeaders(response) {
 
 /**
  * Handles Server-Sent Events (SSE) stream responses
- * @param {Response} response - The fetch Response object
+ * @param {ReadableStream} stream - The response's ReadableStream
  * @returns {ReadableStream} Returns a ReadableStream that emits parsed SSE messages
  */
-function handleSSEStream(response) {
-  const reader = response.body.getReader()
+function handleSSEStream(stream) {
+  const reader = stream.getReader()
   const decoder = new TextDecoder()
   let buffer = ''
 
@@ -223,12 +223,13 @@ function handleSSEStream(response) {
 
 /**
  * Handles chunked stream responses
- * @param {Response} response - The fetch Response object
+ * @param {ReadableStream} stream - The response's ReadableStream
  * @returns {ReadableStream} Returns a ReadableStream that emits parsed chunks
  */
-export function handleChunkedStream(response) {
-  const reader = response.body.getReader()
+export function handleChunkedStream(stream) {
+  const reader = stream.getReader()
   const decoder = new TextDecoder()
+  let buffer = ''
 
   return new ReadableStream({
     async start(controller) {
@@ -237,20 +238,19 @@ export function handleChunkedStream(response) {
           const { done, value } = await reader.read()
           if (done) break
 
-          // Decode the chunk
-          let chunk =
+          buffer +=
             typeof value === 'string'
               ? value
               : decoder.decode(value, { stream: true })
 
-          chunk = chunk.trim()
-          try {
-            chunk = JSON.parse(chunk)
-          } catch (error) {
-            // Do nothing
-          }
-          controller.enqueue(chunk)
+          // Holds the last line back because the next read may complete it
+          const lines = buffer.split('\n')
+          buffer = lines.pop()
+
+          for (const line of lines) enqueueLine(controller, line)
         }
+
+        enqueueLine(controller, buffer)
       } catch (error) {
         controller.error(error)
       } finally {
@@ -258,4 +258,21 @@ export function handleChunkedStream(response) {
       }
     },
   })
+}
+
+/**
+ * Enqueues a line as JSON, or as text when it isn't JSON
+ * @param {ReadableStreamDefaultController} controller - The controller to enqueue into
+ * @param {string} line - One line from the stream
+ * @returns {void}
+ */
+function enqueueLine(controller, line) {
+  const trimmed = line.trim()
+  if (!trimmed) return
+
+  try {
+    controller.enqueue(JSON.parse(trimmed))
+  } catch (error) {
+    controller.enqueue(trimmed)
+  }
 }

@@ -63,10 +63,10 @@ export function reject(error) {
 
 /**
  * Reads and processes a response stream
- * @param {Response} response - The fetch Response object to read
- * @returns {Promise<any>} A promise that resolves with the processed stream data
+ * @param {ReadableStream} stream - The response's ReadableStream, `response.body`
+ * @returns {ReadableStream} Returns a ReadableStream that emits parsed chunks
  * @see {@link handleChunkedStream} for implementation details
  */
-export function readStream(response) {
-  return handleChunkedStream(response)
+export function readStream(stream) {
+  return handleChunkedStream(stream)
 }
