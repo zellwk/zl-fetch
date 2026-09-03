@@ -191,4 +191,24 @@ app.get('/stream', (req, res) => {
   })
 })
 
+// Content type endpoints
+app.get('/ndjson', (req, res) => {
+  res.setHeader('Content-Type', 'application/x-ndjson')
+  res.end('{"a":1}\n{"a":2}\n{"a":3}\n')
+})
+
+app.get('/sse-charset', (req, res) => {
+  res.setHeader('Content-Type', 'text/event-stream; charset=utf-8')
+  res.end('data: {"n":1}\n\n')
+})
+
+app.get('/png', (req, res) => {
+  res.setHeader('Content-Type', 'image/png')
+  res.end(Buffer.from([0x89, 0x50, 0x4e, 0x47]))
+})
+
+app.get('/no-content', (req, res) => {
+  res.status(204).end()
+})
+
 export default app

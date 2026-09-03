@@ -35,30 +35,41 @@ export function handleError(error) {
 /**
  * Determines the type of response based on content-type and other headers
  * @param {Response} response - The fetch Response object
- * @returns {string|null} Returns the response type ('json', 'text', 'blob', 'formData', 'sse', 'chunked', 'stream') or null for 204 No Content
- * @throws {Error} Throws an error if the content-type is not supported
+ * @param {Object} options - Configuration options
+ * @param {boolean} [options.stream] - Whether the caller asked for a stream
+ * @returns {string} Returns the response type ('none', 'json', 'ndjson', 'text', 'blob', 'formData', 'sse', 'chunked', 'stream')
  */
 function getResponseType(response, options) {
   const contentType = response.headers.get('content-type')
   const contentLength = response.headers.get('content-length')
   const transferEncoding = response.headers.get('Transfer-Encoding')
 
-  if (!contentType) return null // Handles 204 No Content
+  // Handles 204 No Content
+  if (!contentType) return 'none'
 
   if (options.stream === true) {
-    // Streaming response types
-    if (contentType === 'text/event-stream') return 'sse'
+    if (contentType.includes('text/event-stream')) return 'sse'
+    if (isNDJSON(contentType)) return 'ndjson'
     if (transferEncoding === 'chunked') return 'chunked'
     if (!contentLength) return 'stream'
-  } else {
-    if (contentType.includes('json')) return 'json'
-    if (contentType.includes('text')) return 'text'
-    if (contentType.includes('blob')) return 'blob'
-    if (contentType.includes('x-www-form-urlencoded')) return 'formData'
   }
 
-  // Need to check for FormData, Blob and ArrayBuffer content types
-  throw new Error(`zlFetch does not support content-type ${contentType} yet`)
+  if (isNDJSON(contentType)) return 'ndjson'
+  if (contentType.includes('json')) return 'json'
+  if (contentType.includes('text')) return 'text'
+  if (contentType.includes('x-www-form-urlencoded')) return 'formData'
+
+  // Blob reads any content type, so it's the honest fallback
+  return 'blob'
+}
+
+/**
+ * Says whether a content type is newline-delimited JSON
+ * @param {string} contentType - The response's content-type header
+ * @returns {boolean}
+ */
+function isNDJSON(contentType) {
+  return contentType.includes('ndjson') || contentType.includes('jsonl')
 }
 
 /**
@@ -69,6 +80,10 @@ function getResponseType(response, options) {
  * @returns {Promise<Object>} Returns a promise that resolves to the parsed response
  */
 async function parseResponse(response, options) {
+  if (options.type === 'none') {
+    return createOutput({ response, body: null, options })
+  }
+
   // Parse formData into JavaScript object
   if (options.type === 'formData') {
     let body = await response.text()
@@ -89,6 +104,23 @@ async function parseResponse(response, options) {
 
   if (options.type === 'chunked') {
     const body = handleChunkedStream(response.body)
+    return createOutput({ response, body, options })
+  }
+
+  // Streams NDJSON on request, otherwise collects every line into an array
+  if (options.type === 'ndjson') {
+    if (options.stream === true) {
+      const body = handleChunkedStream(response.body)
+      return createOutput({ response, body, options })
+    }
+
+    const text = await response.text()
+    const body = text
+      .split('\n')
+      .map(line => line.trim())
+      .filter(Boolean)
+      .map(parseLine)
+
     return createOutput({ response, body, options })
   }
 
@@ -270,9 +302,18 @@ function enqueueLine(controller, line) {
   const trimmed = line.trim()
   if (!trimmed) return
 
+  controller.enqueue(parseLine(trimmed))
+}
+
+/**
+ * Parses a line as JSON, or hands it back as text when it isn't JSON
+ * @param {string} line - One line from the stream
+ * @returns {Object|string}
+ */
+function parseLine(line) {
   try {
-    controller.enqueue(JSON.parse(trimmed))
+    return JSON.parse(line)
   } catch (error) {
-    controller.enqueue(trimmed)
+    return line
   }
 }

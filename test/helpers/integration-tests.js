@@ -457,6 +457,51 @@ export default function tests(environment, config) {
   })
 
   // ========================
+  // Content Types
+  // ========================
+  describe(`Content Types (from ${environment})`, context => {
+    it('Collects NDJSON into an array', async ({ endpoint }) => {
+      const response = await zlFetch(`${endpoint}/ndjson`)
+      expect(response.body).toEqual([{ a: 1 }, { a: 2 }, { a: 3 }])
+    })
+
+    it('Streams NDJSON when asked for a stream', async ({ endpoint }) => {
+      const response = await zlFetch(`${endpoint}/ndjson`, { stream: true })
+      const chunks = []
+
+      for await (const chunk of response.body) chunks.push(chunk)
+
+      expect(chunks).toEqual([{ a: 1 }, { a: 2 }, { a: 3 }])
+    })
+
+    it('Reads SSE when the content type carries a charset', async ({
+      endpoint,
+    }) => {
+      const response = await zlFetch(`${endpoint}/sse-charset`, {
+        stream: true,
+      })
+
+      const chunks = []
+      for await (const chunk of response.body) chunks.push(chunk)
+
+      expect(chunks[0].event).toBe('message')
+      expect(chunks[0].data).toEqual({ n: 1 })
+    })
+
+    it('Falls back to a blob for binary content', async ({ endpoint }) => {
+      const response = await zlFetch(`${endpoint}/png`)
+      expect(response.body).toBeInstanceOf(Blob)
+      expect(response.body.size).toBe(4)
+    })
+
+    it('Gives a null body for 204 No Content', async ({ endpoint }) => {
+      const response = await zlFetch(`${endpoint}/no-content`)
+      expect(response.status).toBe(204)
+      expect(response.body).toBe(null)
+    })
+  })
+
+  // ========================
   // Streaming Responses
   // ========================
   describe(`Streaming Responses (from ${environment})`, context => {
