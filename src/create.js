@@ -1,6 +1,32 @@
 import { coreFetch } from './core.js'
 
-// Creates an instance of zlFetch to be used later
+/**
+ * @import { ZlFetchOptions, ZlFetchPromise } from './core.js'
+ */
+
+/**
+ * One call on a created instance. The URL is optional because the instance already holds a base URL, so the first argument takes the endpoint or the options. Written as a call signature rather than a `@callback` because `@callback` makes the alias generic instead of the signature, and the options type has to be inferred per call.
+ *
+ * @typedef {{ <O extends ZlFetchOptions>(urlOrOptions?: string | O, options?: O): ZlFetchPromise<O> }} ZlFetchInstanceCall
+ */
+
+/**
+ * @typedef {ZlFetchInstanceCall & {
+ *   get: ZlFetchInstanceCall,
+ *   post: ZlFetchInstanceCall,
+ *   put: ZlFetchInstanceCall,
+ *   patch: ZlFetchInstanceCall,
+ *   delete: ZlFetchInstanceCall,
+ * }} ZlFetchInstance
+ */
+
+/**
+ * create
+ *
+ * @param {string} baseURL - Prefixed to every request from the instance
+ * @param {ZlFetchOptions} [options] - Merged into every request from the instance
+ * @returns {ZlFetchInstance}
+ */
 export function create(baseURL, options) {
   const fn = function (...args) {
     const { url, newOptions } = normalize(args)

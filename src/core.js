@@ -2,30 +2,65 @@ import createRequestOptions from './createRequestOptions.js'
 import { handleError, handleResponse } from './handleResponse.js'
 
 /**
+ * zlFetch's own options. Anything else you pass goes to Fetch untouched.
+ *
+ * @typedef {object} ZlFetchOwnOptions
+ * @property {string} [method='GET'] - HTTP method (GET, POST, PUT, PATCH, DELETE)
+ * @property {object} [query] - Query parameters object (alternative to queries)
+ * @property {object} [queries] - Query parameters object (alternative to query)
+ * @property {object} [params] - Query parameters object (alternative to query/queries)
+ * @property {object} [param] - Query parameters object (alternative to query/queries/params)
+ * @property {object} [headers] - HTTP headers to send with the request
+ * @property {object|string|FormData} [body] - Request body. Can be an object (JSON), string (form-urlencoded), or FormData
+ * @property {string|object} [auth] - Authentication information. String for Bearer token, object for Basic auth
+ * @property {boolean} [stream=false] - When true, detects and decodes a streamed response
+ * @property {boolean} [debug=false] - When true, includes debug information in the response
+ * @property {boolean} [returnError=false] - When true, resolves to a ZlFetchReturnError instead of rejecting
+ * @property {boolean} [customResponseParser=false] - When true, resolves to the raw Response without parsing
+ * @property {AbortController} [controller] - Abort controller to use instead of the one zlFetch creates
+ * @property {AbortSignal} [signal] - Abort signal to use instead of the controller's own
+ */
+
+/**
+ * @typedef {Omit<RequestInit, 'body' | 'headers' | 'method' | 'signal'> & ZlFetchOwnOptions} ZlFetchOptions
+ */
+
+/**
+ * What a request resolves to. Rejects with this same shape on a 400 or 500.
+ *
+ * @typedef {object} ZlFetchResponse
+ * @property {*} body - Parsed response body (JSON, NDJSON, text, blob, or a decoded stream)
+ * @property {object} headers - Response headers
+ * @property {Response} response - Original fetch Response object
+ * @property {number} status - HTTP status code
+ * @property {string} statusText - HTTP status text
+ * @property {() => void} abort - Aborts the request
+ * @property {object} [debug] - Request options, present when the debug option is set
+ */
+
+/**
+ * What a request resolves to when returnError is set. One field carries the response, the other is null.
+ *
+ * @typedef {object} ZlFetchReturnError
+ * @property {ZlFetchResponse|null} response - The response when the request succeeded
+ * @property {ZlFetchResponse|null} error - The response when the request failed
+ */
+
+/**
+ * The promise zlFetch hands back. Carries abort() so you can cancel before it settles. customResponseParser is checked first because it returns the response before createOutput runs, which leaves returnError with nothing to act on.
+ *
+ * @template {ZlFetchOptions} [O=ZlFetchOptions]
+ * @typedef {Promise<O extends { customResponseParser: true } ? Response : O extends { returnError: true } ? ZlFetchReturnError : ZlFetchResponse> & { abort: () => void }} ZlFetchPromise
+ */
+
+/**
  * Main Fetch Function
+ *
+ * @template {ZlFetchOptions} [O=ZlFetchOptions]
  * @param {string} url - The endpoint URL to fetch from
- * @param {object} [options] - zlFetch options
- * @param {string} [options.method='GET'] - HTTP method (GET, POST, PUT, PATCH, DELETE)
- * @param {object} [options.query] - Query parameters object (alternative to queries)
- * @param {object} [options.queries] - Query parameters object (alternative to query)
- * @param {object} [options.params] - Query parameters object (alternative to query/queries)
- * @param {object} [options.param] - Query parameters object (alternative to query/queries/params)
- * @param {object} [options.headers] - HTTP headers to send with the request
- * @param {object|string|FormData} [options.body] - Request body. Can be an object (JSON), string (form-urlencoded), or FormData
- * @param {string|object} [options.auth] - Authentication information. String for Bearer token, object for Basic auth
- * @param {boolean} [options.debug=false] - When true, includes debug information in the response
- * @param {boolean} [options.returnError=false] - When true, returns error object instead of rejecting
- * @param {boolean} [options.customResponseParser=false] - When true, returns raw response without parsing
- * @returns {Promise<object>} A promise that resolves to the response object containing:
- *   - {object} headers - Response headers
- *   - {*} body - Parsed response body (JSON, text, or blob)
- *   - {number} status - HTTP status code
- *   - {string} statusText - HTTP status text
- *   - {Response} response - Original fetch Response object
- *   - {object} [debug] - Debug information (only if debug option is true)
- *   - {object} [error] - Error object (only if returnError is true)
- *   - {function} abort - Aborts the request
- * @throws {Error} When the request fails and returnError is false
+ * @param {O} [options] - zlFetch options
+ * @returns {ZlFetchPromise<O>}
+ * @throws {ZlFetchResponse} When the request fails and returnError is false
  */
 
 export function coreFetch(url, options = {}) {
@@ -79,17 +114,12 @@ function debugHeaders(requestOptions) {
 // so it will be captured by ts
 
 /**
- * @param {string} url - endpoint
- * @param {object} [options] - zlFetch options
- * @param {object} [options.query] - query Object
- * @param {object} [options.queries] - query Object
- * @param {object} [options.params] - query Object
- * @param {object} [options.param] - query Object
- * @param {object} [options.headers] - HTTP headers
- * @param {string} [options.auth] - Authentication information
- * @param {string} [options.debug] - Logs the request options for debugging
- * @param {string} [options.returnError] - Returns the error instead of rejecting it
- * @param {string} [options.customResponseParser] - Use a custome response parser
+ * coreFetch.get
+ *
+ * @template {ZlFetchOptions} [O=ZlFetchOptions]
+ * @param {string} url - The endpoint URL to fetch from
+ * @param {O} [options] - zlFetch options
+ * @returns {ZlFetchPromise<O>}
  */
 coreFetch.get = function (url, options) {
   return coreFetch(url, {
@@ -99,18 +129,12 @@ coreFetch.get = function (url, options) {
 }
 
 /**
- * @param {string} url - endpoint
- * @param {object} [options] - zlFetch options
- * @param {object} [options.query] - query Object
- * @param {object} [options.queries] - query Object
- * @param {object} [options.params] - query Object
- * @param {object} [options.param] - query Object
- * @param {object} [options.headers] - HTTP headers
- * @param {object} [options.body] - Body content
- * @param {string} [options.auth] - Authentication information
- * @param {string} [options.debug] - Logs the request options for debugging
- * @param {string} [options.returnError] - Returns the error instead of rejecting it
- * @param {string} [options.customResponseParser] - Use a custome response parser
+ * coreFetch.post
+ *
+ * @template {ZlFetchOptions} [O=ZlFetchOptions]
+ * @param {string} url - The endpoint URL to fetch from
+ * @param {O} [options] - zlFetch options
+ * @returns {ZlFetchPromise<O>}
  */
 coreFetch.post = function (url, options) {
   return coreFetch(url, {
@@ -120,18 +144,12 @@ coreFetch.post = function (url, options) {
 }
 
 /**
- * @param {string} url - endpoint
- * @param {object} [options] - zlFetch options
- * @param {object} [options.query] - query Object
- * @param {object} [options.queries] - query Object
- * @param {object} [options.params] - query Object
- * @param {object} [options.param] - query Object
- * @param {object} [options.headers] - HTTP headers
- * @param {object} [options.body] - Body content
- * @param {string} [options.auth] - Authentication information
- * @param {string} [options.debug] - Logs the request options for debugging
- * @param {string} [options.returnError] - Returns the error instead of rejecting it
- * @param {string} [options.customResponseParser] - Use a custome response parser
+ * coreFetch.put
+ *
+ * @template {ZlFetchOptions} [O=ZlFetchOptions]
+ * @param {string} url - The endpoint URL to fetch from
+ * @param {O} [options] - zlFetch options
+ * @returns {ZlFetchPromise<O>}
  */
 coreFetch.put = function (url, options) {
   return coreFetch(url, {
@@ -141,18 +159,12 @@ coreFetch.put = function (url, options) {
 }
 
 /**
- * @param {string} url - endpoint
- * @param {object} [options] - zlFetch options
- * @param {object} [options.query] - query Object
- * @param {object} [options.queries] - query Object
- * @param {object} [options.params] - query Object
- * @param {object} [options.param] - query Object
- * @param {object} [options.headers] - HTTP headers
- * @param {object} [options.body] - Body content
- * @param {string} [options.auth] - Authentication information
- * @param {string} [options.debug] - Logs the request options for debugging
- * @param {string} [options.returnError] - Returns the error instead of rejecting it
- * @param {string} [options.customResponseParser] - Use a custome response parser
+ * coreFetch.patch
+ *
+ * @template {ZlFetchOptions} [O=ZlFetchOptions]
+ * @param {string} url - The endpoint URL to fetch from
+ * @param {O} [options] - zlFetch options
+ * @returns {ZlFetchPromise<O>}
  */
 coreFetch.patch = function (url, options) {
   return coreFetch(url, {
@@ -162,17 +174,12 @@ coreFetch.patch = function (url, options) {
 }
 
 /**
- * @param {string} url - endpoint
- * @param {object} [options] - zlFetch options
- * @param {object} [options.query] - query Object
- * @param {object} [options.queries] - query Object
- * @param {object} [options.params] - query Object
- * @param {object} [options.param] - query Object
- * @param {object} [options.headers] - HTTP headers
- * @param {string} [options.auth] - Authentication information
- * @param {string} [options.debug] - Logs the request options for debugging
- * @param {string} [options.returnError] - Returns the error instead of rejecting it
- * @param {string} [options.customResponseParser] - Use a custome response parser
+ * coreFetch.delete
+ *
+ * @template {ZlFetchOptions} [O=ZlFetchOptions]
+ * @param {string} url - The endpoint URL to fetch from
+ * @param {O} [options] - zlFetch options
+ * @returns {ZlFetchPromise<O>}
  */
 coreFetch.delete = function (url, options) {
   return coreFetch(url, {
